@@ -1,0 +1,16 @@
+environment:
+  matrix:
+    - PYTHON: "C:\\Python34"
+    - PYTHON: "C:\\Python35"
+    - PYTHON: "C:\\Python36"
+    - PYTHON: "C:\\Python34-x64"
+    - PYTHON: "C:\\Python35-x64"
+    - PYTHON: "C:\\Python36-x64"
+
+install:
+  - "%PYTHON%\\Scripts\\pip.exe install ."
+
+build: off
+
+test_script:
+  - "%PYTHON%\\python.exe -m unittest -v"

@@ -44,7 +44,8 @@ class Data:
         The provided alphabet must match the content of the fasta files. For sequence-only files
         a single string ('ACGT' or 'ACGU') should be provided and for sequence-structure files a 
         tuple should be provided (('ACGU', 'HIMS') to use the annotated structures or ('ACGU', '().')
-        to use dot-bracket structures).
+        to use dot-bracket structures). Characters that are not part of the provided alphabets will
+        be randomly replaced with an alphabet character.
 
         Parameters
         ----------

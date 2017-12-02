@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/budach/pysster.svg?branch=master)](https://travis-ci.org/budach/pysster)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+
 ## pysster: a Sequence-STructure classifiER
 ### Learning Sequence and Structure Motifs in DNA and RNA Sequences using Convolutional Neural Networks
 
@@ -7,7 +10,7 @@ The preprint can be found on bioRxiv in the near future.
 
 ### Installation
 
-pysster is compatible with Python 3.3+ and can be installed via pip or github.
+pysster is compatible with Python 3.4+ and can be installed via pip or github.
 
 **Install via pip:**
 

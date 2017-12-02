@@ -29,7 +29,7 @@ Load the sequences and split the data into 70%/15%/15% training/validation/test.
 
  This kind of format is the default output of RNAfold. The third line containing the annotated structure string can be omitted if you want to do the training on the dot-bracket strings (RNAfold will not output the annotated structure string, but we provide a helper function in the utils file to annotate an existing fasta file). **Important: All sequences in all files must have the same length.** 
 
- The provided alphabet must match the content of the fasta files. For sequence-only files a single string ('ACGT' or 'ACGU') should be provided and for sequence-structure files a tuple should be provided (('ACGU', 'HIMS') to use the annotated structures or ('ACGU', '().') to use dot-bracket structures). 
+ The provided alphabet must match the content of the fasta files. For sequence-only files a single string ('ACGT' or 'ACGU') should be provided and for sequence-structure files a tuple should be provided (('ACGU', 'HIMS') to use the annotated structures or ('ACGU', '().') to use dot-bracket structures). Characters that are not part of the provided alphabets will be randomly replaced with an alphabet character. 
 
 
 
