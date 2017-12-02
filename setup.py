@@ -14,7 +14,7 @@ setup(
         'seaborn',
         'scikit-learn',
         'keras>=2.1.1',
-        'tensorflow-gpu>=1.4.0',
+        'tensorflow>=1.4.0',
         'h5py',
         'logging_exceptions',
         'Pillow',

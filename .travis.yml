@@ -5,6 +5,6 @@ python:
     - "3.5"
     - "3.6"
 install:
-    - python3 setup.py install
+    - pip install .
 
 script: python3 -m unittest -v
