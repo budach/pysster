@@ -21,6 +21,7 @@ setup(
         'forgi'
     ],
     packages = ['pysster'],
+    python_requires = '>=3.3',
     include_package_data = True,
     zip_safe = False
 )
