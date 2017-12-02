@@ -43,5 +43,5 @@ class Test_Grid_Search(unittest.TestCase):
         for word in table[3].split():
             self.assertTrue(word in ["conv_num", "kernel_num", "epochs", "roc-auc"])
         for line in table[4:8]:
-            self.assertTrue(line.split()[-1] == '0.50000')
+            self.assertTrue(len(line.split()) == 4)
         self.assertTrue(table[8] == '')
