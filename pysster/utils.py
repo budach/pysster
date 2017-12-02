@@ -151,7 +151,7 @@ def annotate_structures(input_file, output_file):
         bg = cgb.BulgeGraph()
         bg.from_dotbracket(entry[1].split()[0])
         handle_out.write(">{}\n".format(header))
-        handle_out.write("{}\n{}\n{}\n".format(*entry[0:2], bg.to_element_string().upper()))
+        handle_out.write("{}\n{}\n{}\n".format(entry[0], entry[1], bg.to_element_string().upper()))
     handle_in.close()
     handle_out.close()
 

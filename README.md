@@ -1,7 +1,4 @@
-[![Build Status](https://travis-ci.org/budach/pysster.svg?branch=master)](https://travis-ci.org/budach/pysster)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-
-## pysster: a Sequence-STructure classifiER
+## pysster: a Sequence-STructure classifiER  [![Build Status](https://travis-ci.org/budach/pysster.svg?branch=master)](https://travis-ci.org/budach/pysster) [![Build status](https://ci.appveyor.com/api/projects/status/b7kkrb0qu5fsanbh/branch/master?svg=true)](https://ci.appveyor.com/project/budach/pysster/branch/master) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 ### Learning Sequence and Structure Motifs in DNA and RNA Sequences using Convolutional Neural Networks
 
 pysster is a python packge for training and interpretation of convolutional neural networks. The package can be applied to both DNA and RNA to classify sets of sequences by learning sequence and secondary structure motifs. It can handle multi-class and single-label or multi-label classifications. It offers an automated hyperparameter optimization and options to visualize learned motifs along with information about their positional and class enrichment. The package runs seamlessly on CPU and GPU and provides a simple interface to train and evaluate a network with a handful lines of code.
@@ -10,7 +7,7 @@ The preprint can be found on bioRxiv in the near future.
 
 ### Installation
 
-pysster is compatible with Python 3.4+ and can be installed via pip or github.
+pysster is compatible with Python 3.5+ and can be installed via pip or github.
 
 **Install via pip:**
 

@@ -57,7 +57,7 @@ class Data:
         """
         if isinstance(alphabet, tuple):
             self.is_rna = True
-            self.alpha_coder = Alphabet_Encoder(*alphabet)
+            self.alpha_coder = Alphabet_Encoder(alphabet[0], alphabet[1])
             alphabet = self.alpha_coder.alphabet
             data_loader = self._load_encode_rna
         else:
