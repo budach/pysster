@@ -36,12 +36,12 @@ By the time of writing the most recent TensorFlow version is 1.4.0 and requires 
 ### Documentation
 
 **Tutorials**
-* [Example workflow](https://github.com/budach/pysster/tutorials/workflow_rna_editing.ipynb) (data loading, model training via grid search, model evaluation + motif visualization showcased using an RNA editing data set)
-* [Visualization by optimization of all network layers](https://github.com/budach/pysster/tutorials/visualize_all_the_things.ipynb) (an alternative visualization method showcased using an artifical data set)
+* [Example workflow](https://github.com/budach/pysster/blob/master/tutorials/workflow_rna_editing.ipynb) (data loading, model training via grid search, model evaluation + motif visualization showcased using an RNA editing data set)
+* [Visualization by optimization of all network layers](https://github.com/budach/pysster/blob/master/tutorials/visualize_all_the_things.ipynb) (an alternative visualization method showcased using an artifical data set)
 
 **API documentation**
-* [Data objects](https://github.com/budach/pysster/docs/Data.md) (handling and encoding of DNA/RNA input data)
-* [Model objects](https://github.com/budach/pysster/docs/Model.md) (training and interpretation of networks)
-* [Grid_Search objects](https://github.com/budach/pysster/docs/Grid_Search.md) (hyperparameter tuning)
-* [Motif objects](https://github.com/budach/pysster/docs/Motif.md) (motif representation of a PWM)
-* [utils functions](https://github.com/budach/pysster/docs/utils.md) (save/load Data/Model objects, predict/annotate secondary structures, further processing, etc.)
+* [Data objects](https://github.com/budach/pysster/blob/master/docs/Data.md) (handling and encoding of DNA/RNA input data)
+* [Model objects](https://github.com/budach/pysster/blob/master/docs/Model.md) (training and interpretation of networks)
+* [Grid_Search objects](https://github.com/budach/pysster/blob/master/docs/Grid_Search.md) (hyperparameter tuning)
+* [Motif objects](https://github.com/budach/pysster/blob/master/docs/Motif.md) (motif representation of a PWM)
+* [utils functions](https://github.com/budach/pysster/blob/master/docs/utils.md) (save/load Data/Model objects, predict/annotate secondary structures, further processing, etc.)
