@@ -1,0 +1,2 @@
+include pysster/resources/motif/*.png
+include pysster/resources/motif/LiberationSans-Regular.ttf
