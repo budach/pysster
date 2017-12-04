@@ -1,7 +1,7 @@
 ## pysster: a Sequence-STructure classifiER  [![Build Status](https://travis-ci.org/budach/pysster.svg?branch=master)](https://travis-ci.org/budach/pysster) [![Build status](https://ci.appveyor.com/api/projects/status/b7kkrb0qu5fsanbh/branch/master?svg=true)](https://ci.appveyor.com/project/budach/pysster/branch/master) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 ### Learning Sequence and Structure Motifs in DNA and RNA Sequences using Convolutional Neural Networks
 
-pysster is a python packge for training and interpretation of convolutional neural networks. The package can be applied to both DNA and RNA to classify sets of sequences by learning sequence and secondary structure motifs. It can handle multi-class and single-label or multi-label classifications. It offers an automated hyperparameter optimization and options to visualize learned motifs along with information about their positional and class enrichment. The package runs seamlessly on CPU and GPU and provides a simple interface to train and evaluate a network with a handful lines of code.
+pysster is a python package for training and interpretation of convolutional neural networks. The package can be applied to both DNA and RNA to classify sets of sequences by learning sequence and secondary structure motifs. It can handle multi-class and single-label or multi-label classifications, it offers an automated hyperparameter optimization and options to visualize learned motifs along with information about their positional and class enrichment. The package runs seamlessly on CPU and GPU and provides a simple interface to train and evaluate a network with a handful lines of code.
 
 The preprint can be found on bioRxiv in the near future.
 
@@ -17,13 +17,12 @@ pip3 install pysster
 **Install via github:**
 ```sh
 git clone https://github.com/budach/pysster.git
-cd pysster
-python3 setup.py install
+pip3 install pysster/.
 ```
 
 ### Using the GPU
 
-pysster depends on TensorFlow and by default the CPU version of TensorFlow will be installed. If you want to use your NVIDIA GPU (which is recommended for large data sets or grid searchs) make sure that your CUDA and cuDNN drivers are correctly installed and then install the GPU version of tensorflow:
+pysster depends on TensorFlow and by default the CPU version of TensorFlow will be installed. If you want to use your NVIDIA GPU (which is recommended for large data sets or grid searchs) make sure that your CUDA and cuDNN drivers are correctly installed and then install the GPU version of TensorFlow:
 
 ```sh
 pip3 uninstall tensorflow
