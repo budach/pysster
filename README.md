@@ -19,7 +19,8 @@ pip3 install pysster
 **Install latest version via github:**
 ```sh
 git clone https://github.com/budach/pysster.git
-pip3 install pysster/.
+cd pysster
+pip3 install .
 ```
 
 ### Using the GPU
