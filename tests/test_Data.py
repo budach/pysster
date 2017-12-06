@@ -25,15 +25,15 @@ class Test_Data(unittest.TestCase):
     def test_data_init_dna(self):
         self.assertFalse(self.data_dna.is_rna)
         self.assertFalse(self.data_dna.multilabel)
-        self.assertTrue(len(self.data_dna.data) == 50)
+        self.assertTrue(len(self.data_dna.data) == 100)
         self.assertTrue(self.data_dna.data[0].shape == (32, 4))
         self.assertTrue(self.data_dna.one_hot_encoder.alphabet == 'ACGT')
 
-        self.assertTrue(len(self.data_dna.labels) == 50)
+        self.assertTrue(len(self.data_dna.labels) == 100)
         self.assertTrue(self.data_dna.labels[0].shape == (2,))
-        for x in range(20):
+        for x in range(40):
             self.assertTrue((self.data_dna.labels[x] == [1,0]).all())
-        for x in range(20, 50):
+        for x in range(40, 100):
             self.assertTrue((self.data_dna.labels[x] == [0,1]).all())
 
 
@@ -71,9 +71,9 @@ class Test_Data(unittest.TestCase):
                             set(obj.splits["val"])   &
                             set(obj.splits["test"])  == set())
 
-        self.assertTrue(len(self.data_dna.splits["train"]) == 35)
-        self.assertTrue(len(self.data_dna.splits["val"]) == 7)
-        self.assertTrue(len(self.data_dna.splits["test"]) == 8)
+        self.assertTrue(len(self.data_dna.splits["train"]) == 70)
+        self.assertTrue(len(self.data_dna.splits["val"]) == 15)
+        self.assertTrue(len(self.data_dna.splits["test"]) == 15)
         self.assertTrue(set(self.data_dna.splits["train"]) &
                         set(self.data_dna.splits["val"])   &
                         set(self.data_dna.splits["test"])  == set())
@@ -86,7 +86,7 @@ class Test_Data(unittest.TestCase):
 
 
     def test_data_get_sequences(self):
-        num_seqs = {'train': 35, 'val': 7, 'test': 8, 'all': 50}
+        num_seqs = {'train': 70, 'val': 15, 'test': 15, 'all': 100}
         for group in ['train', 'val', 'test', 'all']:
             seqs = []
             for class_id in [0, 1]:
@@ -97,7 +97,7 @@ class Test_Data(unittest.TestCase):
 
 
     def test_data_get_data(self):
-        num_seqs = {'train': 35, 'val': 7, 'test': 8, 'all': 50}
+        num_seqs = {'train': 70, 'val': 15, 'test': 15, 'all': 100}
         for group in ['train', 'val', 'test', 'all']:
             one_hot = self.data_dna._get_data(group)
             self.assertTrue(one_hot[0].shape == (num_seqs[group], 32, 4))
@@ -138,18 +138,18 @@ class Test_Data(unittest.TestCase):
     
     def test_data_get_labels(self):
         labels = self.data_dna.get_labels("test")
-        self.assertTrue(labels.shape == (8, 2))
+        self.assertTrue(labels.shape == (15, 2))
         self.assertTrue((labels.sum(axis=1) == 1).all())
         labels = self.data_dna.get_labels("train")
-        self.assertTrue(labels.shape == (35, 2))
+        self.assertTrue(labels.shape == (70, 2))
         self.assertTrue((labels.sum(axis=1) == 1).all())
         labels = self.data_dna.get_labels("val")
-        self.assertTrue(labels.shape == (7, 2))
+        self.assertTrue(labels.shape == (15, 2))
         self.assertTrue((labels.sum(axis=1) == 1).all())
         labels = self.data_dna.get_labels("all")
-        self.assertTrue(labels.shape == (50, 2))
+        self.assertTrue(labels.shape == (100, 2))
         self.assertTrue((labels.sum(axis=1) == 1).all())
-        self.assertTrue((labels.sum(axis=0) == [20, 30]).all())
+        self.assertTrue((labels.sum(axis=0) == [40, 60]).all())
 
         labels = self.data_rna_ann.get_labels("test")
         self.assertTrue(labels.shape == (3, 3))

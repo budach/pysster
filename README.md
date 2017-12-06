@@ -16,7 +16,7 @@ pysster is compatible with Python 3.5+ and can be installed via pip or github.
 ```sh
 pip3 install pysster
 ```
-**Install via github:**
+**Install latest version via github:**
 ```sh
 git clone https://github.com/budach/pysster.git
 pip3 install pysster/.
