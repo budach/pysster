@@ -29,11 +29,14 @@ class Model:
     network training and visualization of learned features (sequence/structure motifs). The
     basic architecture of the network consists of a variable number of convolutional and max pooling
     layers followed by a variable number of dense layers. These layers are interspersed by dropout
-    layers after the input layer and after every max pooling and dense layer.
+    layers after the input layer and after every max pooling and dense layer. Network weights in
+    all layers are regularized using a max norm constraint. Early stopping is implemented
+    with respect to the loss on the validation data.
     
     The network uses the Adam optimizer. In case of a single-label classification a softmax
     activation is used for the output layer together with a categorical crossentropy loss. In case
     of a multi-label classification a sigmoid activation and a binary crossentropy loss is used.
+    All other layers use ReLU activations.
     
     The network can be tuned using the following hyperparameters which can be provided through
     the 'params' parameter of the __init__ function:
@@ -123,7 +126,7 @@ class Model:
             The Data object the model should be trained on.
         
         verbose : bool
-            If True, progress information will be printed throughout the training. 
+            If True, progress information (train/val loss) will be printed throughout the training. 
         """
         np.random.seed(self.params["seed"])
         random.seed(self.params["seed"])

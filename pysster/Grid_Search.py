@@ -51,7 +51,7 @@ class Grid_Search:
             A Data object providing training and validation data sets.
         
         verbose: bool
-            If True, progress information will be printed throughout the training.
+            If True, progress information (train/val loss) will be printed throughout the training.
 
         Returns
         -------

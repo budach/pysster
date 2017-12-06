@@ -5,6 +5,8 @@ pysster is a python package for training and interpretation of convolutional neu
 
 The preprint can be found on bioRxiv in the near future.
 
+If you run into bugs, missing documentation or if you have a feature request, feel free to open an issue.
+
 ### Installation
 
 pysster is compatible with Python 3.5+ and can be installed via pip or github.

@@ -1,8 +1,8 @@
 # Class Model - Documentation
 
-The Model class represents a convolutional neural network and provides functions for network training and visualization of learned features (sequence/structure motifs). The basic architecture of the network consists of a variable number of convolutional and max pooling layers followed by a variable number of dense layers. These layers are interspersed by dropout layers after the input layer and after every max pooling and dense layer. 
+The Model class represents a convolutional neural network and provides functions for network training and visualization of learned features (sequence/structure motifs). The basic architecture of the network consists of a variable number of convolutional and max pooling layers followed by a variable number of dense layers. These layers are interspersed by dropout layers after the input layer and after every max pooling and dense layer. Network weights in all layers are regularized using a max norm constraint. Early stopping is implemented with respect to the loss on the validation data. 
 
- The network uses the Adam optimizer. In case of a single-label classification a softmax activation is used for the output layer together with a categorical crossentropy loss. In case of a multi-label classification a sigmoid activation and a binary crossentropy loss is used. 
+ The network uses the Adam optimizer. In case of a single-label classification a softmax activation is used for the output layer together with a categorical crossentropy loss. In case of a multi-label classification a sigmoid activation and a binary crossentropy loss is used. All other layers use ReLU activations. 
 
  The network can be tuned using the following hyperparameters which can be provided through the 'params' parameter of the \_\_init\_\_ function: 
 
@@ -79,7 +79,7 @@ Train the model.
 | parameter | type | description |
 |:-|:-|:-|
 | data | pysster.Data | The Data object the model should be trained on. |
-| verbose | bool | If True, progress information will be printed throughout the training. |
+| verbose | bool | If True, progress information (train/val loss) will be printed throughout the training. |
 ## predict
 
 ``` python
