@@ -3,7 +3,7 @@
 
 pysster is a python package for training and interpretation of convolutional neural networks. The package can be applied to both DNA and RNA to classify sets of sequences by learning sequence and secondary structure motifs. It can handle multi-class and single-label or multi-label classifications, it offers an automated hyperparameter optimization and options to visualize learned motifs along with information about their positional and class enrichment. The package runs seamlessly on CPU and GPU and provides a simple interface to train and evaluate a network with a handful lines of code.
 
-The preprint can be found on bioRxiv in the near future.
+The preprint can be found on [bioRxiv](https://www.biorxiv.org/content/early/2017/12/06/230086).
 
 If you run into bugs, missing documentation or if you have a feature request, feel free to open an issue.
 
