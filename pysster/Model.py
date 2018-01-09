@@ -10,7 +10,7 @@ from keras import backend as K
 from keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
 from keras.models import Sequential, load_model
 from keras.models import Model as KModel
-from keras.layers import Dropout, Conv1D, MaxPooling1D, Flatten, Dense
+from keras.layers import Dropout, Conv1D, MaxPooling1D, Flatten, Dense, LSTM, GRU, Bidirectional
 from keras.constraints import max_norm
 from keras.optimizers import Adam
 from keras.initializers import RandomUniform, Constant
@@ -69,6 +69,26 @@ class Model:
     of length 300-25+1=276 after the first convolutional layer. A default pooling layer will halve
     this number further to 138. If you use too many convolutional/pooling stacks you will get an
     error, because your sequence length will be <= 0.
+
+    For advanced users we offer the option to add recurrent layers (RNN) between the convolutional
+    and the dense block. Two kinds of layers are possible: Long Short Term Memory (LSTM) or Gated
+    Recurrent Units (GRU). They can be tuned using the following hyperparameters provided through
+    the 'params' parameter as above:
+
+    '| parameter             | default | description |
+    '|:-                     |:-       |:-           |
+    '| rnn_type              | None    | "LSTM" or "GRU" (strings) are possible layers at the moment |
+    '| rnn_num               | 1       | number of RNN layers |
+    '| rnn_units             | 32      | number of output dimensions of each RNN layer |
+    '| rnn_bidirectional     | True    | True or False (bool) whether layers should be bidirectional |
+    '| rnn_dropout_input     | 0.2     | dropout portion for input connections |
+    '| rnn_dropout_recurrent | 0.0     | dropout portion for recurrent connections |
+
+    From our experience RNN layers increase the runtime performance a lot, but the
+    predictive performance only a little or not at all, therefore use them with caution. If you
+    want to get rid of the convolutional or dense block, you can simply set "conv_num" or "dense_num"
+    to 0. However, motif visualization will not be possible anymore if the first network layer is not
+    a convolutional layer.
     """
 
     def __init__(self, params, data, seed = None):
@@ -201,6 +221,8 @@ class Model:
         results : dict
             A dict with 3 values ('activations', 'labels, 'group', see above)
         """
+        if not self.model.layers[index].name.startswith("conv1d"):
+            raise RuntimeError("Layer index must refer to a convolutional layer.")
         tmp_model = KModel(self.model.input, self.model.layers[index].output)
         data_gen = data._data_generator(group, self.params['batch_size'], False, False)
         idx = data._get_idx(group)
@@ -279,6 +301,8 @@ class Model:
         results: tuple(pysster.Motif, float) or tuple((tuple(pysster.Motif, pysster.Motif), float)
             A Motif object (or a tuple of Motifs for sequence/structure motifs) and the importance score.
         """
+        if not self.model.layers[1].name.startswith("conv1d"):
+            raise RuntimeError("First layer is not a convolutional layer. Visualization not possible.")
         # this function is kind of messy to keep the memory usage low.
         # i am avoiding to compute the complete first conv layer output because
         # that would be a matrix of shape (num of sequences, length of sequences, num of kernels)
@@ -447,6 +471,8 @@ class Model:
                           'dropout_input': 0.1, 'dropout_conv': 0.3, 'dropout_dense': 0.6,
                           'learning_rate': 0.0005, 'patience_lr': 5, 'patience_stopping': 15,
                           'epochs': 500, 'activation': "softmax", 'loss': "categorical_crossentropy",
+                          'rnn_type': None, 'rnn_num': 1, 'rnn_units': 32, 'rnn_bidirectional': True,
+                          'rnn_dropout_input': 0.2, 'rnn_dropout_recurrent': 0.0,
                           'seed': None}
         for key in default_params:
             if not key in self.params:
@@ -457,12 +483,34 @@ class Model:
             raise RuntimeError("Input shape not specified.")
 
 
+    def _add_rnn_layer(self, rnn, return_sequences):
+        if self.params["rnn_bidirectional"] == False:
+            self.model.add(rnn(units = self.params["rnn_units"],
+                               dropout = self.params["rnn_dropout_input"],
+                               recurrent_dropout = self.params["rnn_dropout_recurrent"],
+                               kernel_initializer = RandomUniform(),
+                               kernel_constraint = max_norm(self.params["kernel_constraint"]),
+                               return_sequences = return_sequences))
+        else:
+            self.model.add(Bidirectional(
+                rnn(units = self.params["rnn_units"],
+                    dropout = self.params["rnn_dropout_input"],
+                    recurrent_dropout = self.params["rnn_dropout_recurrent"],
+                    kernel_initializer = RandomUniform(),
+                    kernel_constraint = max_norm(self.params["kernel_constraint"]),
+                    return_sequences = return_sequences)))
+
+
     def _prepare_model(self):
         np.random.seed(self.params["seed"])
         random.seed(self.params["seed"])
+
+        # input
         self.model = Sequential()
         self.model.add(Dropout(input_shape = self.params["input_shape"],
                                rate = self.params["dropout_input"]))
+
+        # convolutional/pooling block
         for x in range(self.params["conv_num"]):
             self.model.add(Conv1D(filters = self.params["kernel_num"],
                                   kernel_size = self.params["kernel_len"],
@@ -473,13 +521,30 @@ class Model:
             self.model.add(MaxPooling1D(pool_size = self.params["pool_size"],
                                         strides = self.params["pool_stride"]))
             self.model.add(Dropout(rate = self.params["dropout_conv"]))
-        self.model.add(Flatten())
+        
+        # recurrent block
+        if self.params["rnn_type"] != None:
+            if self.params["rnn_type"] == "LSTM":
+                rnn = LSTM
+            elif self.params["rnn_type"] == "GRU":
+                rnn = GRU
+            else:
+                raise ValueError("rnn_type '{}' not supported.".format(self.params["rnn_type"]))
+            for x in range(self.params["rnn_num"]-1):
+                self._add_rnn_layer(rnn, return_sequences=True)
+            self._add_rnn_layer(rnn, return_sequences=False)
+        else:
+            self.model.add(Flatten())
+        
+        # dense block
         for x in range(self.params["dense_num"]):
             self.model.add(Dense(units = self.params["neuron_num"],
                                  kernel_initializer = RandomUniform(),
                                  kernel_constraint = max_norm(self.params["kernel_constraint"]),
                                  activation = "relu"))
             self.model.add(Dropout(rate = self.params["dropout_dense"]))
+        
+        # output
         self.model.add(Dense(units = self.params["class_num"],
                              kernel_initializer = RandomUniform(),
                              activation = self.params['activation']))
