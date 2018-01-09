@@ -121,19 +121,17 @@ def annotate_structures(input_file, output_file):
     """ Annotate secondary structure predictions with structural contexts.
 
     Given dot-bracket strings this function will annote every character
-    as either 'H' (hairpin), 'S' (stem), 'I' (internal loop) or 'M' (multi loop). The input file
+    as either 'H' (hairpin), 'S' (stem), 'I' (internal loop/bulge) or 'M' (multi loop). The input file
     must be a fasta formatted file and each sequence and structure must span a single line:
 
     '>header
     'CCCCAUAGGGG
     '((((...)))) (-3.3)
 
-    This is the default format of RNAfold. The output file will then contain the annotated string
-    as a third line:
+    This is the default format of e.g. RNAfold. The output file will contain the annotated string:
 
     '>header
     'CCCCAUAGGGG
-    '((((...)))) (-3.3)
     'SSSSHHHSSSS
 
     Parameters
@@ -142,7 +140,7 @@ def annotate_structures(input_file, output_file):
         A fasta file containing secondary structure predictions.
     
     output_file : str
-        A fasta file with additional structure annotations.
+        A fasta file with secondary structure annotations.
     """
     handle_in = get_handle(input_file, "rt")
     handle_out = get_handle(output_file, "wt")
@@ -151,12 +149,12 @@ def annotate_structures(input_file, output_file):
         bg = cgb.BulgeGraph()
         bg.from_dotbracket(entry[1].split()[0])
         handle_out.write(">{}\n".format(header))
-        handle_out.write("{}\n{}\n{}\n".format(entry[0], entry[1], bg.to_element_string().upper()))
+        handle_out.write("{}\n{}\n".format(entry[0], bg.to_element_string().upper()))
     handle_in.close()
     handle_out.close()
 
 
-def predict_structures(input_file, output_file, num_processes = 1, annotate = False):
+def predict_structures(input_file, output_file, num_processes=1, annotate=False):
     """ Predict secondary structures for RNA sequences.
 
     This is a convenience function to get quick RNA secondary structure predictions. The function
@@ -164,14 +162,19 @@ def predict_structures(input_file, output_file, num_processes = 1, annotate = Fa
     can be found the function returns without creating an output file. Using the RNAlib python bindings
     is preferred as it is much faster.
 
-    Entries of the output file look as follows:
+    Entries of the output file look as follows if annotate = False:
 
     '>header
     'CCCCAUAGGGG
     '((((...)))) (-3.3)
+
+    If annotate = True the annotated structure string instead of the dot-bracket string will be printed:
+
+    '>header
+    'CCCCAUAGGGG
     'SSSSHHHSSSS
 
-    The third line will only exist if annotate = True.
+    Have a look at the annotate_structures() function for more information about annotated structure strings.
 
     Warning: Due to the way Python works spinning up additional processes means copying the complete
     memory of the original process, i.e. if the original processes already uses 5 GB of RAM each additional
@@ -205,7 +208,7 @@ def predict_structures(input_file, output_file, num_processes = 1, annotate = Fa
             data = pool.starmap(func = _predict_and_annotate, 
                                 iterable = zip(parse_fasta(handle), repeat(predictor)),
                                 chunksize = 50)
-            formatter = ">{}\n{}\n{} ({})\n{}\n"
+            formatter = ">{}\n{}\n{}\n"
         else:
             data = pool.map(func = predictor,
                             iterable = parse_fasta(handle),
@@ -232,7 +235,7 @@ def _predict_and_annotate(fasta_entry, predict_function):
     predict_entry = predict_function(fasta_entry)
     bg = cgb.BulgeGraph()
     bg.from_dotbracket(predict_entry[2])
-    return (*predict_entry, bg.to_element_string().upper())
+    return (predict_entry[0], predict_entry[1], bg.to_element_string().upper())
 
 
 def auROC(labels, predictions):
@@ -415,10 +418,10 @@ def save_as_meme(logos, file_path):
     with open(file_path, "wt") as handle:
         handle.write("MEME version 4\n\nALPHABET= {}\n\nstrands: + -\n\n".format(alphabet))
         handle.write("Background letter frequencies (from uniform background):\n")
-        if alphabet == "().":
-            handle.write("{} 0.33333 {} 0.33333 {} 0.33334\n".format(*alphabet))
-        else:
-            handle.write("{} 0.25000 {} 0.25000 {} 0.25000 {} 0.25000\n".format(*alphabet))
+        header = ""
+        for c in alphabet:
+            header += "{} {:7.5f} ".format(c, 1/len(alphabet))
+        handle.write(header[:-1] + '\n')
         for i, logo in enumerate(logos):
             pwm = logo.pwm
             handle.write("\nMOTIF motif_{} motif_{}\n\n".format(i,i))
@@ -567,16 +570,17 @@ def plot_violins(data, kernel, file_path):
     matplotlib.rcParams.update(matplotlib.rcParamsDefault)
 
 
-def plot_motif(logo, file_path):
+def plot_motif(logo, file_path, colors_sequence, colors_structure):
     if isinstance(logo, tuple):
-        img1, img2 = logo[0].plot(scale=0.75), logo[1].plot(scale=0.75)
+        img1 = logo[0].plot(colors_sequence, scale=0.75)
+        img2 = logo[1].plot(colors_structure, scale=0.75)
         img = Image.new("RGB", (img1.size[0], img1.size[1]+img2.size[1]))
         img.paste(img1, (0, 0))
         img.paste(img2, (0, img1.size[1]))
         img1.close()
         img2.close()
     else:
-        img = logo.plot(scale=0.75)
+        img = logo.plot(colors_sequence, scale=0.75)
     img.save(file_path)
     img.close()
     plt.close('all')

@@ -18,7 +18,7 @@ class Test_Model(unittest.TestCase):
     def setUp(self):
         folder = dirname(__file__)
         file_name = folder + "/data/rna.fasta"
-        self.data = Data(file_name, ("ACGU", "HIMS"))
+        self.data = Data(file_name, ("ACGU", "()."))
         self.params = {"conv_num":1, "kernel_num":3, "kernel_len":5,
                        "neuron_num":2, "epochs":3}
         self.m1 = Model(self.params, self.data, seed = 2)
@@ -32,7 +32,7 @@ class Test_Model(unittest.TestCase):
         self.assertTrue(self.m1.params["kernel_len"] == 5)
         self.assertTrue(self.m1.params["neuron_num"] == 2)
         self.assertTrue(self.m1.params["activation"] == "sigmoid")
-        self.assertTrue(self.m1.model.layers[1].get_weights()[0].shape == (5,16,3))
+        self.assertTrue(self.m1.model.layers[1].get_weights()[0].shape == (5,12,3))
         self.assertTrue(np.allclose(self.m1.model.layers[1].get_weights()[0], 
                                     self.m3.model.layers[1].get_weights()[0]))
         self.assertFalse(np.allclose(self.m2.model.layers[1].get_weights()[0], 

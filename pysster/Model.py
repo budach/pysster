@@ -214,7 +214,7 @@ class Model:
                 'group': group}
 
 
-    def visualize_kernel(self, activations, data, kernel, folder):
+    def visualize_kernel(self, activations, data, kernel, folder, colors_sequence={}, colors_structure={}):
         """ Get a number of visualizations and an importane score for a convolutional kernel.
 
         This function creates three output files: 1) a sequence(/structure) motif that the
@@ -268,6 +268,12 @@ class Model:
         folder: str
             A valid folder path. Plots will be saved here.
         
+        colors_sequence : dict of char->(int, int, int)
+            A dict with individual sequence alphabet chars as keys and RGB tuples as values (see Motif object documentation for details).
+        
+        colors_structure : dict of char->(int, int, int)
+            A dict with individual structure alphabet chars as keys and RGB tuples as values (see Motif object documentation for details).
+        
         Returns
         -------
         results: tuple(pysster.Motif, float) or tuple((tuple(pysster.Motif, pysster.Motif), float)
@@ -316,7 +322,7 @@ class Model:
                     sequences = data._get_sequences(class_id, activations["group"], select)
                     logo = self._plot_motif(data, self._get_subseq(sequences, histograms[-1]))
         # plot everything
-        utils.plot_motif(logo, "{}motif_kernel_{}.png".format(folder, kernel))
+        utils.plot_motif(logo, "{}motif_kernel_{}.png".format(folder, kernel), colors_sequence, colors_structure)
         utils.plot_motif_summary(histograms, mean_acts, kernel, "{}position_kernel_{}.png".format(folder, kernel))
         utils.plot_violins(max_per_class, kernel, "{}activations_kernel_{}.png".format(folder, kernel))
         return logo, max(mean_max) - min(mean_max)
@@ -365,7 +371,7 @@ class Model:
 
 
 
-    def visualize_optimized_inputs(self, data, layer_name, output_file, bound=0.1, lr=0.02, steps=600, nodes=None):
+    def visualize_optimized_inputs(self, data, layer_name, output_file, bound=0.1, lr=0.02, steps=600, colors_sequence={}, colors_structure={}, nodes=None):
         """ Visualize what every node in the network has learned.
 
         Given fixed network parameters it is possible to visualize what individual nodes (e.g.
@@ -410,6 +416,12 @@ class Model:
         steps : int
             An int > 0. Number of optimization iterations.
         
+        colors_sequence : dict of char->(int, int, int)
+            A dict with individual sequence alphabet chars as keys and RGB tuples as values (see Motif object documentation for details).
+        
+        colors_structure : dict of char->(int, int, int)
+            A dict with individual structure alphabet chars as keys and RGB tuples as values (see Motif object documentation for details).
+        
         nodes : [int]
             List of integers indicating which nodes of the layer should be optimized (default: all).
         """
@@ -422,7 +434,8 @@ class Model:
         motif_plots = []
         for node in nodes:
             print("Optimize node {}...".format(node))
-            motif_plots += self._get_optimized_input(model, data, layer_name, node, bound, lr, steps)
+            motif_plots += self._get_optimized_input(model, data, layer_name, node, bound, 
+                                                     lr, steps, colors_sequence, colors_structure)
         utils.combine_images(motif_plots, output_file)
 
 
@@ -526,7 +539,7 @@ class Model:
     def _extract_pwm(self, input_data, annotation, alphabet):
         pwm = []
         for char in alphabet:
-            if char in "().": 
+            if char in "().[|": 
                 pattern = "\{}".format(char)
             else:
                 pattern = char
@@ -535,7 +548,7 @@ class Model:
         return np.transpose(np.array(pwm))
 
 
-    def _get_optimized_input(self, model, data, layer_name, node_index, boundary, lr, steps):
+    def _get_optimized_input(self, model, data, layer_name, node_index, boundary, lr, steps, colors_sequence, colors_structure):
         for attempt in range(5):
             input_data = np.random.uniform(-boundary, +boundary,
                                            (1, self.params["input_shape"][0], self.params["input_shape"][1]))
@@ -545,13 +558,13 @@ class Model:
             print("Warning: loss did not converge for node {} in layer '{}'".format(node_index, layer_name))
         input_data = np.apply_along_axis(utils.softmax, 1, input_data)
         if not data.is_rna:
-            return [Motif(data.one_hot_encoder.alphabet, pwm = input_data).plot(scale=0.25)]
+            return [Motif(data.one_hot_encoder.alphabet, pwm = input_data).plot(colors_sequence, scale=0.25)]
         else:
             annotation_seq, annotation_struct = data.alpha_coder.decode(data.alpha_coder.alphabet)
             pwm_struct = self._extract_pwm(input_data, annotation_struct, data.alpha_coder.alph1)
             pwm_seq = self._extract_pwm(input_data, annotation_seq, data.alpha_coder.alph0)
-            motif_struct = Motif(data.alpha_coder.alph1, pwm = pwm_struct).plot(scale=0.25)
-            motif_seq = Motif(data.alpha_coder.alph0, pwm = pwm_seq).plot(scale=0.25)
+            motif_struct = Motif(data.alpha_coder.alph1, pwm = pwm_struct).plot(colors_structure, scale=0.25)
+            motif_seq = Motif(data.alpha_coder.alph0, pwm = pwm_seq).plot(colors_sequence, scale=0.25)
             return [motif_seq, motif_struct]
 
 

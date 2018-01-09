@@ -10,8 +10,9 @@ class Motif:
     """
     The Motif class is a convenience class to compute and plot a position-weight matrix (PWM).
     The only functionality is the plot function. The PWM and corresponding entropy values
-    can be accessed using the self.pwm and self.entropies members, if so desired. Motifs using the
-    following characters can be plotted : "ACGTU().HIMS".
+    can be accessed using the self.pwm and self.entropies members, if so desired. All uppercase
+    alphanumeric characters and the following additional characters can be part of the
+    alphabet: "()[]{}<>,.|".
     """
 
     def __init__(self, alphabet, sequences = None, pwm = None):
@@ -63,14 +64,25 @@ class Motif:
             self.entropies[i] = -sum(fun(pos))
 
 
-    def plot(self, scale = 1):
+    def plot(self, colors={}, scale=1):
         """ Plot the motif.
 
         The default height of the plot is 754 pixel. The width depends on the length
         of the motif. Using, for instance, a scale parameter of 0.5 halves both height and width.
+        The color of individual letters can be defined via the colors dict using RGB values, e.g.
+        {'A':(255,0,0), 'C':(0,0,255)} will result in red A's and blue C's. Non-defined characters
+        will be plotted black.
+
+        The alphabets 'ACGT', 'ACGU', and 'HIMS' have predefined colors (that can be overwritten):
+        "ACGT" -> {'A':(212,0,0), 'C':(0,102,128), 'G':(255,204,0), 'T':(0,170,0)}
+        "ACGU" -> {'A':(212,0,0), 'C':(0,102,128), 'G':(255,204,0), 'U':(0,170,0)}
+        "HIMS" -> {'H':(212,0,0), 'I':(255,204,0), 'M':(68,170,0), 'S':(204,0,255)}
 
         Parameters
         ----------
+        colors : dict of char->(int, int, int)
+            A dict with individual alphabet characters as keys and RGB tuples as values.
+        
         scale : float
             Adjust the size of the plot (should be > 0).
         
@@ -80,6 +92,15 @@ class Motif:
             A Pillow image object.
         """
 
+        # prepare colors
+        self.colors = colors
+        if self.colors == {}:
+            if self.alphabet == 'ACGT':
+                self.colors = {'A':(212,0,0), 'C':(0,102,128), 'G':(255,204,0), 'T':(0,170,0)}
+            elif self.alphabet == 'ACGU':
+                self.colors = {'A':(212,0,0), 'C':(0,102,128), 'G':(255,204,0), 'U':(0,170,0)}
+            elif self.alphabet == 'HIMS':
+                self.colors = {'H':(212,0,0), 'I':(255,204,0), 'M':(68,170,0), 'S':(204,0,255)}
         # cache all alphabet character images
         img_chars = self._load_characters()
         # prepapre image dimensions
@@ -107,7 +128,23 @@ class Motif:
         folder = dirname(__file__)
         img_chars = {}
         for char in self.alphabet:
-            img_chars[char] = Image.open("{}/resources/motif/char{}.png".format(folder, char))
+            # these three characters can not be used in filenames
+            if char == '|':
+                img_chars[char] = Image.open("{}/resources/motif/char_except0.png".format(folder))
+            elif char == '<':
+                img_chars[char] = Image.open("{}/resources/motif/char_except1.png".format(folder))
+            elif char == '>':
+                img_chars[char] = Image.open("{}/resources/motif/char_except2.png".format(folder))
+            else:
+                img_chars[char] = Image.open("{}/resources/motif/char{}.png".format(folder, char))
+            # change the color if needed
+            if char in self.colors:
+                #img_chars[char] = img_chars[char].convert('RGBA')
+                data = np.array(img_chars[char])
+                red, green, blue, alpha = data.T
+                not_white = (red != 255) & (blue != 255) & (green != 255)
+                data[..., :-1][not_white.T] = self.colors[char]
+                img_chars[char] = Image.fromarray(data)
         return img_chars
 
 
@@ -142,6 +179,7 @@ class Motif:
         info_content = log(len(self.alphabet), 2)
         ticks = np.arange(0.0, info_content + 0.5, 0.5)
         for x in ticks:
+            if x > info_content: break
             y_tick = h_top + h_col - h_col*(x/info_content)
             img_draw.line((w_col-20, y_tick, w_col, y_tick), fill = "#000000", width = 5)
             textwidth, textheight = img_draw.textsize(str(x), font)
@@ -171,5 +209,5 @@ class Motif:
             for x in size_chars:
                 y_tick = y_tick - x[1]
                 scaled = img_chars[x[0]].resize((w_col, max(1, x[1])), Image.BICUBIC)
-                img_motif.paste(scaled, (x_tick, y_tick))
+                img_motif.paste(scaled, (x_tick, y_tick), mask = scaled)
             x_tick += w_col

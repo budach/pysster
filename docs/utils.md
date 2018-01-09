@@ -83,18 +83,17 @@ def annotate_structures(input_file, output_file)
 ```
 Annotate secondary structure predictions with structural contexts. 
 
- Given dot-bracket strings this function will annote every character as either 'H' (hairpin), 'S' (stem), 'I' (internal loop) or 'M' (multi loop). The input file must be a fasta formatted file and each sequence and structure must span a single line: 
+ Given dot-bracket strings this function will annote every character as either 'H' (hairpin), 'S' (stem), 'I' (internal loop/bulge) or 'M' (multi loop). The input file must be a fasta formatted file and each sequence and structure must span a single line: 
 
   \>header  
   CCCCAUAGGGG  
   ((((...)))) (-3.3)  
  
 
- This is the default format of RNAfold. The output file will then contain the annotated string as a third line: 
+ This is the default format of e.g. RNAfold. The output file will contain the annotated string: 
 
   \>header  
   CCCCAUAGGGG  
-  ((((...)))) (-3.3)  
   SSSSHHHSSSS  
  
 
@@ -103,25 +102,31 @@ Annotate secondary structure predictions with structural contexts.
 | parameter | type | description |
 |:-|:-|:-|
 | input_file | str | A fasta file containing secondary structure predictions. |
-| output_file | str | A fasta file with additional structure annotations. |
+| output_file | str | A fasta file with secondary structure annotations. |
 ## predict\_structures
 
 ``` python
-def predict_structures(input_file, output_file, num_processes = 1, annotate = False)
+def predict_structures(input_file, output_file, num_processes=1, annotate=False)
 ```
 Predict secondary structures for RNA sequences. 
 
  This is a convenience function to get quick RNA secondary structure predictions. The function will try to use the RNAlib python bindings or the RNAfold binary to perform predictions. If neither can be found the function returns without creating an output file. Using the RNAlib python bindings is preferred as it is much faster. 
 
- Entries of the output file look as follows: 
+ Entries of the output file look as follows if annotate = False: 
 
   \>header  
   CCCCAUAGGGG  
   ((((...)))) (-3.3)  
+ 
+
+ If annotate = True the annotated structure string instead of the dot-bracket string will be printed: 
+
+  \>header  
+  CCCCAUAGGGG  
   SSSSHHHSSSS  
  
 
- The third line will only exist if annotate = True. 
+ Have a look at the annotate\_structures() function for more information about annotated structure strings. 
 
  Warning: Due to the way Python works spinning up additional processes means copying the complete memory of the original process, i.e. if the original processes already uses 5 GB of RAM each additional process will use 5 GB as well. 
 
