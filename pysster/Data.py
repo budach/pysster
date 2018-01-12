@@ -3,6 +3,7 @@ import numpy as np
 from random import choice
 from collections import defaultdict
 from itertools import chain
+from scipy import stats
 
 
 import pysster.utils as io
@@ -57,6 +58,7 @@ class Data:
         structure_pwm: bool
             Are structures provided as single strings (False) or as PWMs (True)?
         """
+        self.meta = {}
         self.is_rna_pwm = False
         if isinstance(alphabet, tuple):
             self.is_rna = True
@@ -104,6 +106,76 @@ class Data:
         splits = np.random.permutation(np.arange(num_sequences))
         splits = np.split(splits, [break_train, break_val])
         self.splits = {"train": splits[0], "val": splits[1], "test": splits[2]}
+
+
+    def load_additional_data(self, class_files, is_categorical=False, standardize=False):
+        """ Add additional handcrafted numerical or categorical features to the network.
+
+        For every input sequence additional data can be added to the network (e.g. location,
+        average sequence conservation, etc.). The data will be concatenated to the input of the first dense
+        layer. Input files are text files and must contain one value per line, e.g.:
+        
+        '0.679
+        '0.961
+        '0.065
+        '0.871
+        '...
+        
+        The number of provided files must match the fasta files provided to the __init__
+        function (e.g. if you provided a list of 3 files to __init__ you must provide a list
+        of 3 files here as well) and the number of lines in each file must match the number of
+        entries in the corresponding fasta file. If you want to add multiple features simply
+        call this function multiple times.
+
+        Interpreting the influence of arbitrary additional data for a neural network is hard and at
+        the moment we don't provide any means to do so. You should run your model with and without the
+        additional data and check if the predictive performance improves. In general, if you have
+        many handcrafted features you might want to consider using a different machine learning
+        technique.
+
+        Parameters
+        ----------
+        class_files: str or [str]
+            A text file (multi-label) or a list of text files (single-label).
+        
+        is_categorical: bool
+            Is the provided data categorical or numerical?
+        
+        standardize: bool
+            Should the z-score be computed for numerical data?
+        """
+        # load raw data
+        idx = len(self.meta)
+        self.meta[idx] = {"data":[], "is_categorical": is_categorical}
+        for class_id, file_name in enumerate(class_files):
+            handle = io.get_handle(file_name, "rt")
+            if True == is_categorical:
+                for line in handle:
+                    self.meta[idx]['data'].append(line.strip())
+            else:
+                for line in handle:
+                    self.meta[idx]['data'].append(float(line))
+            handle.close()
+        if len(self.labels) != len(self.meta[idx]['data']):
+            raise RuntimeError("Number of additional data ({}) doesn't match number of main data ({}).".format(
+                len(self.meta[idx]['data']), len(self.labels)
+            ))
+        # one hot encode categorical data
+        if True == is_categorical:
+            categories = set(self.meta[idx]['data'])
+            if len(categories) > 256:
+                raise RuntimeError("Too many categories ({}). A maximum of 256 are supported.".format(
+                    len(categories)
+                ))
+            mapping = {val: i for i, val in enumerate(categories)}
+            for i, val in enumerate(self.meta[idx]['data']):
+                one_hot = np.zeros(len(categories), dtype=np.uint8)
+                one_hot[mapping[self.meta[idx]['data'][i]]] = 1
+                self.meta[idx]['data'][i] = one_hot
+        # standardize numerical data if desired
+        else:
+            if True == standardize:
+                self.meta[idx]['data'] = stats.zscore(self.meta[idx]['data'])
 
 
     def get_labels(self, group):
@@ -210,7 +282,7 @@ class Data:
             self.labels[x] = label
 
 
-    def _data_generator(self, group, batch_size, shuffle, labels = True, select = None, seed = None):
+    def _data_generator(self, group, batch_size, shuffle, labels=True, select=None, seed=None, meta=True):
         idx = self._get_idx(group)
         if select is not None:
             idx = idx[select]
@@ -218,12 +290,39 @@ class Data:
             if shuffle:
                 np.random.seed(seed)
                 np.random.shuffle(idx)
-            for i in range(0, len(idx), batch_size):
-                if labels:
-                    yield (np.array([self.data[x] for x in idx[i:(i+batch_size)]]),
-                           np.array([self.labels[x] for x in idx[i:(i+batch_size)]]))
-                else:
-                    yield np.array([self.data[x] for x in idx[i:(i+batch_size)]])
+            # also yield labels
+            if labels:
+                for i in range(0, len(idx), batch_size):
+                    # yield additional data
+                    if meta==True and len(self.meta) > 0:
+                        yield ([np.array([self.data[x] for x in idx[i:(i+batch_size)]]),
+                                self._get_additional_data(idx, i, batch_size)],
+                                np.array([self.labels[x] for x in idx[i:(i+batch_size)]]))
+                    # don't yield additional data
+                    else:
+                        yield (np.array([self.data[x] for x in idx[i:(i+batch_size)]]),
+                               np.array([self.labels[x] for x in idx[i:(i+batch_size)]]))
+            # don't yield labels
+            else:
+                for i in range(0, len(idx), batch_size):
+                    # yield additional data
+                    if meta==True and len(self.meta) > 0:
+                        yield [np.array([self.data[x] for x in idx[i:(i+batch_size)]]),
+                               self._get_additional_data(idx, i, batch_size)]
+                    else:
+                        # don't yield additional data
+                        yield np.array([self.data[x] for x in idx[i:(i+batch_size)]])
+                            
+
+
+    def _get_additional_data(self, idx, i, batch_size):
+        result = []
+        for x in idx[i:(i+batch_size)]:
+            additional = np.empty((0,), dtype=np.float32)
+            for idx_add in range(len(self.meta)):
+                additional = np.append(additional, self.meta[idx_add]['data'][x])
+            result.append(additional)
+        return np.array(result)
 
 
     def _get_data(self, group):

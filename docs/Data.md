@@ -8,12 +8,13 @@ The Data class provides a convenient way to handle bioligcal sequence and struct
 |:-|:-|
 | \_\_init\_\_ | Load the sequences and split the data into 70%/15%/15% training/validation/test. |
 | train\_val\_test\_split | Randomly split the data into training, validation and test set. |
+| load\_additional\_data | Add additional handcrafted numerical or categorical features to the network. |
 | get\_labels | Get the labels for a subset of the data. |
 | get\_summary | Get an overview of the training/validation/test data for each class. |
 ## \_\_init\_\_
 
 ``` python
-def __init__(self, class_files, alphabet)
+def __init__(self, class_files, alphabet, structure_pwm=False)
 ```
 Load the sequences and split the data into 70%/15%/15% training/validation/test. 
 
@@ -21,7 +22,7 @@ Load the sequences and split the data into 70%/15%/15% training/validation/test.
 
  For sequence-only files fasta entries have no format restrictions. For sequence-structure files each sequence and structure must span a single line, e.g.: 
 
-  \>0,2  
+  \>header  
   CCCCAUAGGGG  
   ((((...))))  
  
@@ -38,6 +39,7 @@ Load the sequences and split the data into 70%/15%/15% training/validation/test.
 |:-|:-|:-|
 | class_files | str or [str] | A fasta file (multi-label) or a list of fasta files (single-label). |
 | alphabet | str or tuple(str,str) | A string for sequence-only files and a tuple for sequence-structure files. |
+| structure_pwm | bool | Are structures provided as single strings (False) or as PWMs (True)? |
 ## train\_val\_test\_split
 
 ``` python
@@ -54,6 +56,33 @@ Randomly split the data into training, validation and test set.
 | portion_train | float | Portion of data that should be used for training (<1.0) |
 | portion_val | float | Portion of data that should be used for validation (<1.0) |
 | seed | int | Seed for the random number generator. |
+## load\_additional\_data
+
+``` python
+def load_additional_data(self, class_files, is_categorical=False, standardize=False)
+```
+Add additional handcrafted numerical or categorical features to the network. 
+
+ For every input sequence additional data can be added to the network (e.g. location, average sequence conservation, etc.). The data will be concatenated to the input of the first dense layer. Input files are text files and must contain one value per line, e.g.: 
+
+  0.679  
+  0.961  
+  0.065  
+  0.871  
+  ...  
+ 
+
+ The number of provided files must match the fasta files provided to the \_\_init\_\_ function (e.g. if you provided a list of 3 files to \_\_init\_\_ you must provide a list of 3 files here as well) and the number of lines in each file must match the number of entries in the correspoding fasta file. If you want to add multiple features simply call this function multiple times. 
+
+ Interpreting the influence of arbitrary additional data for a neural network is hard and at the moment we don't provide any means to do so. You should run your model with and without the additional data and check if the predictive performance improves. In general, if you have many handcrafted features you might want to consider using a different machine learning technique. 
+
+
+
+| parameter | type | description |
+|:-|:-|:-|
+| class_files | str or [str] | A text file (multi-label) or a list of text files (single-label). |
+| is_categorical | bool | Is the provided data categorical or numerical? |
+| standardize | bool | Should the z-score be computed for numerical data? |
 ## get\_labels
 
 ``` python

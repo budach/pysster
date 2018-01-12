@@ -32,15 +32,15 @@ class Test_Model(unittest.TestCase):
         self.assertTrue(self.m1.params["kernel_len"] == 5)
         self.assertTrue(self.m1.params["neuron_num"] == 2)
         self.assertTrue(self.m1.params["activation"] == "sigmoid")
-        self.assertTrue(self.m1.model.layers[1].get_weights()[0].shape == (5,12,3))
-        self.assertTrue(np.allclose(self.m1.model.layers[1].get_weights()[0], 
-                                    self.m3.model.layers[1].get_weights()[0]))
-        self.assertFalse(np.allclose(self.m2.model.layers[1].get_weights()[0], 
-                                     self.m3.model.layers[1].get_weights()[0]))
-        self.assertTrue(np.allclose(self.m1.model.layers[5].get_weights()[0], 
-                                    self.m3.model.layers[5].get_weights()[0]))
-        self.assertFalse(np.allclose(self.m2.model.layers[5].get_weights()[0], 
-                                     self.m3.model.layers[5].get_weights()[0]))
+        self.assertTrue(self.m1.model.layers[2].get_weights()[0].shape == (5,12,3))
+        self.assertTrue(np.allclose(self.m1.model.layers[2].get_weights()[0], 
+                                    self.m3.model.layers[2].get_weights()[0]))
+        self.assertFalse(np.allclose(self.m2.model.layers[2].get_weights()[0], 
+                                     self.m3.model.layers[2].get_weights()[0]))
+        self.assertTrue(np.allclose(self.m1.model.layers[6].get_weights()[0], 
+                                    self.m3.model.layers[6].get_weights()[0]))
+        self.assertFalse(np.allclose(self.m2.model.layers[6].get_weights()[0], 
+                                     self.m3.model.layers[6].get_weights()[0]))
 
 
     def test_model_train_predict(self):
@@ -54,14 +54,14 @@ class Test_Model(unittest.TestCase):
             self.assertTrue(predictions.shape == (20,3))
             self.assertTrue((predictions > 0.49).all())
             self.assertTrue((predictions < 0.51).all())
-        self.assertTrue(np.allclose(self.m1.model.layers[1].get_weights()[0], 
-                                    self.m3.model.layers[1].get_weights()[0], atol=0.001))
-        self.assertFalse(np.allclose(self.m2.model.layers[1].get_weights()[0], 
-                                     self.m3.model.layers[1].get_weights()[0], atol=0.001))
-        self.assertTrue(np.allclose(self.m1.model.layers[5].get_weights()[0], 
-                                    self.m3.model.layers[5].get_weights()[0], atol=0.001))
-        self.assertFalse(np.allclose(self.m2.model.layers[5].get_weights()[0], 
-                                     self.m3.model.layers[5].get_weights()[0], atol=0.001))
+        self.assertTrue(np.allclose(self.m1.model.layers[2].get_weights()[0], 
+                                    self.m3.model.layers[2].get_weights()[0], atol=0.001))
+        self.assertFalse(np.allclose(self.m2.model.layers[2].get_weights()[0], 
+                                     self.m3.model.layers[2].get_weights()[0], atol=0.001))
+        self.assertTrue(np.allclose(self.m1.model.layers[6].get_weights()[0], 
+                                    self.m3.model.layers[6].get_weights()[0], atol=0.001))
+        self.assertFalse(np.allclose(self.m2.model.layers[6].get_weights()[0], 
+                                     self.m3.model.layers[6].get_weights()[0], atol=0.001))
     
 
     def test_model_get_max_activations(self):
@@ -94,8 +94,8 @@ class Test_Model(unittest.TestCase):
     
 
     def test_model_optimized_inputs(self):
-        self.m1.visualize_optimized_inputs(self.data, self.m1.model.layers[1].name, gettempdir()+"/test.png")
-        self.m1.visualize_optimized_inputs(self.data, self.m1.model.layers[1].name, gettempdir()+"/test2.png", nodes = [0])
+        self.m1.visualize_optimized_inputs(self.data, self.m1.model.layers[2].name, gettempdir()+"/test.png")
+        self.m1.visualize_optimized_inputs(self.data, self.m1.model.layers[2].name, gettempdir()+"/test2.png", nodes = [0])
         with Image.open(gettempdir()+"/test.png") as img:        
             self.assertTrue(img.size == (1998,1128))
         with Image.open(gettempdir()+"/test2.png") as img:        

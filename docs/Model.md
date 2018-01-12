@@ -28,7 +28,21 @@ The Model class represents a convolutional neural network and provides functions
 
  Not all parameters are equally important when doing a hyperparameter grid search. The ones with a strong influence are usually conv\_num (range 1-3), kernel\_num (range 50-300), neuron\_num (50-1000) and the dropout parameters (around 0.1 for the input and 0.2-0.6 otherwise). 
 
- Note: with each convolutional/pooling stack the length of your sequences will be reduced. E.g. starting with sequences of length 300 and kernels of length 25  will result in sequences of length 300-25+1=276 after the first convolutional layer. A default pooling layer will halve this number further to 138. If you use too many convolutional/pooling stacks you will get an error, because your sequence length will be <= 0.
+ Note: with each convolutional/pooling stack the length of your sequences will be reduced. E.g. starting with sequences of length 300 and kernels of length 25  will result in sequences of length 300-25+1=276 after the first convolutional layer. A default pooling layer will halve this number further to 138. If you use too many convolutional/pooling stacks you will get an error, because your sequence length will be <= 0. 
+
+ For advanced users we offer the option to add recurrent layers (RNN) between the convolutional and the dense block. Two kinds of layers are possible: Long Short Term Memory (LSTM) or Gated Recurrent Units (GRU). They can be tuned using the following hyperparameters provided through the 'params' parameter as above: 
+
+  | parameter             | default | description |  
+  |:-                     |:-       |:-           |  
+  | rnn\_type              | None    | "LSTM" or "GRU" (strings) are possible layers at the moment |  
+  | rnn\_num               | 1       | number of RNN layers |  
+  | rnn\_units             | 32      | number of output dimensions of each RNN layer |  
+  | rnn\_bidirectional     | True    | True or False (bool) whether layers should be bidirectional |  
+  | rnn\_dropout\_input     | 0.2     | dropout portion for input connections |  
+  | rnn\_dropout\_recurrent | 0.0     | dropout portion for recurrent connections |  
+ 
+
+ From our experience RNN layers increase the runtime performance a lot, but the predictive performance only a little or not at all, therefore use them with caution. If you want to get rid of the convolutional or dense block, you can simply set "conv\_num" or "dense\_num" to 0. However, motif visualization will not be possible anymore if the first network layer is not a convolutional layer.
 
 ## Methods - Overview
 
@@ -102,7 +116,7 @@ Get model predictions for a subset of a Data object.
 ## get\_max\_activations
 
 ``` python
-def get_max_activations(self, data, group, index = 1)
+def get_max_activations(self, data, group)
 ```
 Get the network output of the first convolutional layer. 
 
@@ -116,7 +130,6 @@ Get the network output of the first convolutional layer.
 |:-|:-|:-|
 | data | pysster.Data | A Data object. |
 | group | str | The subset of the Data object that should be used. |
-| index | int | The index of the network layer for which the output should be returned. |
 
 | returns | type | description |
 |:-|:-|:-|
@@ -179,7 +192,7 @@ Visualize what every node in the network has learned.
 
  Given fixed network parameters it is possible to visualize what individual nodes (e.g. kernels in conv layers and neurons in dense layers) have learned during model training by specifically maximizing the output of these nodes with respect to an input sequence (starting with a random PWM of the length of an input sequence). In brief: this function learns a single input sequence (in the form of a PWM) that maximizes the output of a specific network node using a l2-norm penalized gradient ascent optimization. 
 
- Warning: This kind of visualization has been applied before to image classification networks and while the resulting images are usually somewhat recognizable they are still very hard to interpret (e.g. https://distill.pub/2017/feature-visualization/). For a PWM to be useful it has to be very precise, but this is unfortunately not the case for many data sets and results are very messy, especially for RNA secondary structure motifs. Therefore this function should not be considered for any biological interpretations. Please use the visualize\_kernel() method for more reliable visualizations. Nevertheless, visualization of all layers of a network can be interesting if you are interested in how the neural networks works per se. 
+ Warning: This kind of visualization has been applied before to image classification networks and while the resulting images are usually somewhat recognizable they are still very hard to interpret (e.g. https://distill.pub/2017/feature-visualization/). For a PWM to be useful it has to be very precise, but this is unfortunately not the case for many data sets and results are very messy, especially for RNA secondary structure motifs. Therefore this function should not be considered for any biological interpretations. Please use the visualize\_kernel() method for more reliable visualizations. Nevertheless, visualization of all layers of a network can be interesting if you are interested in how the neural network works per se. 
 
  If needed, the bound, lr and steps parameters can be used to tune the information content of the PWM and the convergence of the optimization (higher values == higher information content). 
 

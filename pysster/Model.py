@@ -10,11 +10,11 @@ from keras import backend as K
 from keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
 from keras.models import Sequential, load_model
 from keras.models import Model as KModel
-from keras.layers import Dropout, Conv1D, MaxPooling1D, Flatten, Dense, LSTM, GRU, Bidirectional
+from keras.layers import Dropout, Conv1D, MaxPooling1D, Flatten, Dense
+from keras.layers import Input, LSTM, GRU, Bidirectional, concatenate
 from keras.constraints import max_norm
 from keras.optimizers import Adam
 from keras.initializers import RandomUniform, Constant
-from keras.utils import multi_gpu_model
 import keras.activations
 from collections import OrderedDict
 
@@ -117,6 +117,14 @@ class Model:
             if data.multilabel == True:
                 self.params["activation"] = "sigmoid"
                 self.params["loss"] = "binary_crossentropy"
+            if len(data.meta) > 0:
+                length = 0
+                for x in data.meta:
+                    if not data.meta[x]["is_categorical"]:
+                        length += 1
+                    else:
+                        length += len(data.meta[x]["data"][0])
+                self.params["additional_input_length"] = length
         if seed != None:
             self.params['seed'] = seed
         self.temp_file = "{}/{}.hdf5".format(
@@ -194,7 +202,7 @@ class Model:
         return self.model.predict_generator(data_gen, n)
 
 
-    def get_max_activations(self, data, group, index = 1):
+    def get_max_activations(self, data, group):
         """ Get the network output of the first convolutional layer.
 
         The function returns the maximum activation (the maximum output of a kernel) for
@@ -213,18 +221,13 @@ class Model:
         group : str
             The subset of the Data object that should be used.
         
-        index : int
-            The index of the network layer for which the output should be returned.
-        
         Returns
         -------
         results : dict
             A dict with 3 values ('activations', 'labels, 'group', see above)
         """
-        if not self.model.layers[index].name.startswith("conv1d"):
-            raise RuntimeError("Layer index must refer to a convolutional layer.")
-        tmp_model = KModel(self.model.input, self.model.layers[index].output)
-        data_gen = data._data_generator(group, self.params['batch_size'], False, False)
+        tmp_model = KModel(self.model.input, self.model.layers[2].output)
+        data_gen = data._data_generator(group, self.params['batch_size'], False, False, meta=True)
         idx = data._get_idx(group)
         n = max(len(idx)//self.params['batch_size'] + (len(idx)%self.params['batch_size'] != 0), 1)
         activations = []
@@ -301,7 +304,7 @@ class Model:
         results: tuple(pysster.Motif, float) or tuple((tuple(pysster.Motif, pysster.Motif), float)
             A Motif object (or a tuple of Motifs for sequence/structure motifs) and the importance score.
         """
-        if not self.model.layers[1].name.startswith("conv1d"):
+        if not self.model.layers[2].name.startswith("conv1d"):
             raise RuntimeError("First layer is not a convolutional layer. Visualization not possible.")
         # this function is kind of messy to keep the memory usage low.
         # i am avoiding to compute the complete first conv layer output because
@@ -413,7 +416,7 @@ class Model:
         Therefore this function should not be considered for any biological interpretations.
         Please use the visualize_kernel() method for more reliable visualizations. Nevertheless,
         visualization of all layers of a network can be interesting if you are interested
-        in how the neural networks works per se.
+        in how the neural network works per se.
 
         If needed, the bound, lr and steps parameters can be used to tune the information content of the PWM
         and the convergence of the optimization (higher values == higher information content).
@@ -449,6 +452,8 @@ class Model:
         nodes : [int]
             List of integers indicating which nodes of the layer should be optimized (default: all).
         """
+        if len(self.inputs) > 1:
+            raise RuntimeError("Optimization not possible for a model with additional input.")
         if nodes == None:
             nodes = list(range(self.model.get_layer(layer_name).output_shape[-1]))
         if layer_name == self.model.layers[-1].name:
@@ -473,7 +478,7 @@ class Model:
                           'epochs': 500, 'activation': "softmax", 'loss': "categorical_crossentropy",
                           'rnn_type': None, 'rnn_num': 1, 'rnn_units': 32, 'rnn_bidirectional': True,
                           'rnn_dropout_input': 0.2, 'rnn_dropout_recurrent': 0.0,
-                          'seed': None}
+                          'seed': None, 'additional_input_length': 0}
         for key in default_params:
             if not key in self.params:
                 self.params[key] = default_params[key]
@@ -485,42 +490,67 @@ class Model:
 
     def _add_rnn_layer(self, rnn, return_sequences):
         if self.params["rnn_bidirectional"] == False:
-            self.model.add(rnn(units = self.params["rnn_units"],
-                               dropout = self.params["rnn_dropout_input"],
-                               recurrent_dropout = self.params["rnn_dropout_recurrent"],
-                               kernel_initializer = RandomUniform(),
-                               kernel_constraint = max_norm(self.params["kernel_constraint"]),
-                               return_sequences = return_sequences))
+            self.cnn = rnn(units = self.params["rnn_units"],
+                           dropout = self.params["rnn_dropout_input"],
+                           recurrent_dropout = self.params["rnn_dropout_recurrent"],
+                           kernel_initializer = RandomUniform(),
+                           kernel_constraint = max_norm(self.params["kernel_constraint"]),
+                           return_sequences = return_sequences)(self.cnn)
+            # self.model.add(rnn(units = self.params["rnn_units"],
+            #                    dropout = self.params["rnn_dropout_input"],
+            #                    recurrent_dropout = self.params["rnn_dropout_recurrent"],
+            #                    kernel_initializer = RandomUniform(),
+            #                    kernel_constraint = max_norm(self.params["kernel_constraint"]),
+            #                    return_sequences = return_sequences))
         else:
-            self.model.add(Bidirectional(
-                rnn(units = self.params["rnn_units"],
-                    dropout = self.params["rnn_dropout_input"],
-                    recurrent_dropout = self.params["rnn_dropout_recurrent"],
-                    kernel_initializer = RandomUniform(),
-                    kernel_constraint = max_norm(self.params["kernel_constraint"]),
-                    return_sequences = return_sequences)))
+            self.cnn = Bidirectional(rnn(units = self.params["rnn_units"],
+                                         dropout = self.params["rnn_dropout_input"],
+                                         recurrent_dropout = self.params["rnn_dropout_recurrent"],
+                                         kernel_initializer = RandomUniform(),
+                                         kernel_constraint = max_norm(self.params["kernel_constraint"]),
+                                         return_sequences = return_sequences))(self.cnn)
+            # self.model.add(Bidirectional(
+            #     rnn(units = self.params["rnn_units"],
+            #         dropout = self.params["rnn_dropout_input"],
+            #         recurrent_dropout = self.params["rnn_dropout_recurrent"],
+            #         kernel_initializer = RandomUniform(),
+            #         kernel_constraint = max_norm(self.params["kernel_constraint"]),
+            #         return_sequences = return_sequences)))
 
 
     def _prepare_model(self):
         np.random.seed(self.params["seed"])
         random.seed(self.params["seed"])
 
+
         # input
-        self.model = Sequential()
-        self.model.add(Dropout(input_shape = self.params["input_shape"],
-                               rate = self.params["dropout_input"]))
+        self.main_input = Input(shape = self.params["input_shape"])
+        # self.model = Sequential()
+        # self.model.add(Dropout(input_shape = self.params["input_shape"],
+        #                        rate = self.params["dropout_input"]))
 
         # convolutional/pooling block
+        self.cnn = Dropout(rate = self.params["dropout_input"])(self.main_input)
         for x in range(self.params["conv_num"]):
-            self.model.add(Conv1D(filters = self.params["kernel_num"],
-                                  kernel_size = self.params["kernel_len"],
-                                  padding = "valid",
-                                  kernel_initializer = RandomUniform(),
-                                  kernel_constraint = max_norm(self.params["kernel_constraint"]),
-                                  activation = "relu"))
-            self.model.add(MaxPooling1D(pool_size = self.params["pool_size"],
-                                        strides = self.params["pool_stride"]))
-            self.model.add(Dropout(rate = self.params["dropout_conv"]))
+            self.cnn = Conv1D(filters = self.params["kernel_num"],
+                              kernel_size = self.params["kernel_len"],
+                              padding = "valid",
+                              kernel_initializer = RandomUniform(),
+                              kernel_constraint = max_norm(self.params["kernel_constraint"]),
+                              activation = "relu")(self.cnn)
+            self.cnn = MaxPooling1D(pool_size = self.params["pool_size"],
+                                    strides = self.params["pool_stride"])(self.cnn)
+            self.cnn = Dropout(rate = self.params["dropout_conv"])(self.cnn)
+        # for x in range(self.params["conv_num"]):
+        #     self.model.add(Conv1D(filters = self.params["kernel_num"],
+        #                           kernel_size = self.params["kernel_len"],
+        #                           padding = "valid",
+        #                           kernel_initializer = RandomUniform(),
+        #                           kernel_constraint = max_norm(self.params["kernel_constraint"]),
+        #                           activation = "relu"))
+        #     self.model.add(MaxPooling1D(pool_size = self.params["pool_size"],
+        #                                 strides = self.params["pool_stride"]))
+        #     self.model.add(Dropout(rate = self.params["dropout_conv"]))
         
         # recurrent block
         if self.params["rnn_type"] != None:
@@ -534,20 +564,39 @@ class Model:
                 self._add_rnn_layer(rnn, return_sequences=True)
             self._add_rnn_layer(rnn, return_sequences=False)
         else:
-            self.model.add(Flatten())
+            self.cnn = Flatten()(self.cnn)
+            # self.model.add(Flatten())
         
         # dense block
         for x in range(self.params["dense_num"]):
-            self.model.add(Dense(units = self.params["neuron_num"],
-                                 kernel_initializer = RandomUniform(),
-                                 kernel_constraint = max_norm(self.params["kernel_constraint"]),
-                                 activation = "relu"))
-            self.model.add(Dropout(rate = self.params["dropout_dense"]))
+            # add additional input to the first dense layer if available
+            if x == 0 and self.params["additional_input_length"] > 0:
+                self.additional_input = Input(shape=(self.params["additional_input_length"],))
+                self.cnn = concatenate([self.cnn, self.additional_input])
+            self.cnn = Dense(units = self.params["neuron_num"],
+                             kernel_initializer = RandomUniform(),
+                             kernel_constraint = max_norm(self.params["kernel_constraint"]),
+                             activation = "relu")(self.cnn)
+            self.cnn = Dropout(rate = self.params["dropout_dense"])(self.cnn)
+        # for x in range(self.params["dense_num"]):
+        #     self.model.add(Dense(units = self.params["neuron_num"],
+        #                          kernel_initializer = RandomUniform(),
+        #                          kernel_constraint = max_norm(self.params["kernel_constraint"]),
+        #                          activation = "relu"))
+        #     self.model.add(Dropout(rate = self.params["dropout_dense"]))
         
         # output
-        self.model.add(Dense(units = self.params["class_num"],
-                             kernel_initializer = RandomUniform(),
-                             activation = self.params['activation']))
+        self.cnn = Dense(units = self.params["class_num"],
+                         kernel_initializer = RandomUniform(),
+                         activation = self.params['activation'])(self.cnn)
+        if self.params["dense_num"] > 0 and self.params["additional_input_length"] > 0:
+            self.inputs = [self.main_input, self.additional_input]
+        else:
+            self.inputs = [self.main_input]
+        self.model = KModel(inputs=self.inputs, outputs=[self.cnn])
+        # self.model.add(Dense(units = self.params["class_num"],
+        #                      kernel_initializer = RandomUniform(),
+        #                      activation = self.params['activation']))
         self.model.compile(loss = self.params['loss'],
                            optimizer = Adam(lr = self.params["learning_rate"]))
 
@@ -593,8 +642,8 @@ class Model:
 
     def _get_activations_idx_kernel(self, data, idx, group, kernel):
         get_out = K.function([self.model.layers[0].input, K.learning_phase()],
-                             [self.model.layers[1].output[:,:,kernel]])
-        data_gen = data._data_generator(group, self.params['batch_size'], False, False, idx)
+                             [self.model.layers[2].output[:,:,kernel]])
+        data_gen = data._data_generator(group, self.params['batch_size'], False, False, idx, meta=False)
         n = max(len(idx)//self.params['batch_size'] + (len(idx)%self.params['batch_size'] != 0), 1)
         activations = []
         for _ in range(n):
