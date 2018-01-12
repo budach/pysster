@@ -560,11 +560,27 @@ class Model:
 
 
     def _plot_motif(self, data, subseqs):
+        # original structure input was a PWM
+        if isinstance(subseqs[0], np.ndarray):
+            rnas, structs = [], []
+            for pwm in subseqs:
+                idx = np.argmax(~np.isclose(pwm, 0), axis=1)
+                rnas.append(''.join(data.alpha_coder.alph0[x] for x in idx//len(data.alpha_coder.alph1)))
+                structs.append(np.zeros((len(rnas[-1]), len(data.alpha_coder.alph1)), dtype=np.float32))
+                for i, val in enumerate(idx):
+                    val = val - val%len(data.alpha_coder.alph1)
+                    structs[-1][i] = pwm[i,val:(val+len(data.alpha_coder.alph1))]
+                structs = np.sum(structs, 0) / len(structs)
+                logo_rna = Motif(data.alpha_coder.alph0, sequences = rnas)
+                logo_struct = Motif(data.alpha_coder.alph1, pwm = structs)
+                return (logo_rna, logo_struct)
+        # original structure input was a string
         if data.is_rna:
             rnas, structs = zip(*(data.alpha_coder.decode(seq) for seq in subseqs))
             logo_rna = Motif(data.alpha_coder.alph0, sequences = rnas)
             logo_struct = Motif(data.alpha_coder.alph1, sequences = structs)
             return (logo_rna, logo_struct)
+        # no structure input, just sequence
         return Motif(data.one_hot_encoder.alphabet, sequences = subseqs)
 
 
@@ -621,13 +637,19 @@ class Model:
             if success: break
         if not success:
             print("Warning: loss did not converge for node {} in layer '{}'".format(node_index, layer_name))
-        input_data = np.apply_along_axis(utils.softmax, 1, input_data)
         if not data.is_rna:
+            input_data = np.apply_along_axis(utils.softmax, 1, input_data)
             return [Motif(data.one_hot_encoder.alphabet, pwm = input_data).plot(colors_sequence, scale=0.25)]
         else:
-            annotation_seq, annotation_struct = data.alpha_coder.decode(data.alpha_coder.alphabet)
+            if data.is_rna_pwm:
+                annotation_seq = ''.join(x*len(data.alpha_coder.alph1) for x in data.alpha_coder.alph0)
+                annotation_struct = ''.join(data.alpha_coder.alph1 * len(data.alpha_coder.alph0))
+            else:
+                annotation_seq, annotation_struct = data.alpha_coder.decode(data.alpha_coder.alphabet)
             pwm_struct = self._extract_pwm(input_data, annotation_struct, data.alpha_coder.alph1)
             pwm_seq = self._extract_pwm(input_data, annotation_seq, data.alpha_coder.alph0)
+            pwm_struct = np.apply_along_axis(utils.softmax, 1, pwm_struct)
+            pwm_seq = np.apply_along_axis(utils.softmax, 1, pwm_seq)
             motif_struct = Motif(data.alpha_coder.alph1, pwm = pwm_struct).plot(colors_structure, scale=0.25)
             motif_seq = Motif(data.alpha_coder.alph0, pwm = pwm_seq).plot(colors_sequence, scale=0.25)
             return [motif_seq, motif_struct]

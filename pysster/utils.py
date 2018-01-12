@@ -491,7 +491,7 @@ def plot_motif_summary(position_max, mean_acts, kernel, file_path):
     ylim_hist, ylim_mean = 0, 0
     for i, hist in enumerate(position_max):
         if len(hist) == 0:
-            print("Warning: class {} did not activate kernel {}. No plots are created.".format(
+            print("Warning: class {} did not activate kernel {}. No plots were created.".format(
                 i, kernel
             ))
         else:
@@ -503,26 +503,28 @@ def plot_motif_summary(position_max, mean_acts, kernel, file_path):
     files = []
     n_per_plot = 3
     n_plots = ceil(len(classes)/n_per_plot)
+    class_idx = -1
     for plot_id in range(n_plots):
         classes_left = len(classes) - plot_id*n_per_plot
         classes_this_plot = min(n_per_plot, classes_left)
         fig, ax = plt.subplots(nrows = 2, 
                                ncols = classes_this_plot,
                                figsize = (19*classes_this_plot, 12))
-        for class_num in range(classes_this_plot):
+        for class_num in range(classes_left):
+            class_idx += 1
             # histograms
-            ax.flat[class_num].hist(position_max[class_num + n_per_plot*plot_id], 
+            ax.flat[class_num].hist(position_max[classes[class_idx]], 
                                     bins = xlim, range = (0, xlim))
             ax.flat[class_num].set_xlabel("sequence position")
             ax.flat[class_num].set_ylabel("counts")
             ax.flat[class_num].set_ylim((0, ylim_hist))
             ax.flat[class_num].set_title("kernel {}, class_{}, (n = {})".format(
-            kernel, class_num + n_per_plot*plot_id, len(position_max[class_num + n_per_plot*plot_id])
+            kernel, classes[class_idx], len(position_max[classes[class_idx]])
             ))
             _hide_top_right(ax.flat[class_num])
             # mean activations
             ax.flat[class_num + classes_this_plot].plot(list(range(1, xlim)),
-                                                        mean_acts[class_num + n_per_plot*plot_id],
+                                                        mean_acts[classes[class_idx]],
                                                         linewidth = 5.0)
             ax.flat[class_num + classes_this_plot].set_xlabel("sequence position")
             ax.flat[class_num + classes_this_plot].set_ylabel("mean activation")

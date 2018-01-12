@@ -18,7 +18,7 @@ class Data:
     be passed to Grid_Search or Model objects for easy training and evaluation.
     """
 
-    def __init__(self, class_files, alphabet):
+    def __init__(self, class_files, alphabet, structure_pwm=False):
         """ Load the sequences and split the data into 70%/15%/15% training/validation/test.
 
         If the goal is to do single-label classification a list of fasta files must be provided
@@ -30,7 +30,7 @@ class Data:
         For sequence-only files fasta entries have no format restrictions. For sequence-structure
         files each sequence and structure must span a single line, e.g.:
 
-        '>0,2
+        '>header
         'CCCCAUAGGGG
         '((((...))))
 
@@ -53,9 +53,14 @@ class Data:
         
         alphabet: str or tuple(str,str)
             A string for sequence-only files and a tuple for sequence-structure files.
+        
+        structure_pwm: bool
+            Are structures provided as single strings (False) or as PWMs (True)?
         """
+        self.is_rna_pwm = False
         if isinstance(alphabet, tuple):
             self.is_rna = True
+            self.is_rna_pwm = structure_pwm
             self.alpha_coder = Alphabet_Encoder(alphabet[0], alphabet[1])
             alphabet = self.alpha_coder.alphabet
             data_loader = self._load_encode_rna
@@ -172,15 +177,29 @@ class Data:
                 lines = block.split("_")
                 sequence = re.sub(r"[^{}]".format(self.alpha_coder.alph0),
                                   replacer_seq, lines[0])
-                structure = re.sub(r"[^{}]".format(self.alpha_coder.alph1),
-                                   replacer_struct, lines[1].split(" ")[0].upper())
-                joined = self.alpha_coder.encode((sequence, structure))
-                self.data.append(self.one_hot_encoder.encode(joined))
+                if True == self.is_rna_pwm:
+                    pwm = np.zeros((len(sequence), len(self.alpha_coder.alph1)), dtype=np.float32)
+                    for x in range(1, pwm.shape[1]+1):
+                        pwm[:, x-1] = list(map(float, lines[x].split()))
+                    self.data.append(self._join_seq_pwm(sequence, pwm))
+                else:
+                    structure = re.sub(r"[^{}]".format(self.alpha_coder.alph1),
+                                    replacer_struct, lines[1].split(" ")[0].upper())
+                    joined = self.alpha_coder.encode((sequence, structure))
+                    self.data.append(self.one_hot_encoder.encode(joined))
                 if self.multilabel:
                     self.labels.append(list(map(int, header.split(','))))
                 else:
                     self.labels.append([class_id])
             handle.close()
+
+
+    def _join_seq_pwm(self, sequence, pwm):
+        joined = np.zeros((len(sequence), len(self.alpha_coder.alphabet)), np.float32)
+        for i, symbol in enumerate(sequence):
+            pos = self.alpha_coder.alph0.find(symbol) * len(self.alpha_coder.alph1)
+            joined[i, pos:(pos+len(self.alpha_coder.alph1))] = pwm[i,:]
+        return joined
 
 
     def _process_labels(self):
@@ -209,7 +228,7 @@ class Data:
 
     def _get_data(self, group):
         idx = self._get_idx(group)
-        return np.array([self.data[x]for x in idx]), np.array([self.labels[x] for x in idx])
+        return np.array([self.data[x] for x in idx]), np.array([self.labels[x] for x in idx])
 
 
     def _get_idx(self, group):
@@ -229,7 +248,6 @@ class Data:
         return {i: val for i, val in enumerate(counts)}
 
 
-
     def _get_sequences(self, class_id, group, select = None):
         idx = self._get_idx(group)
         labels = np.array([self.labels[x] for x in idx])
@@ -237,8 +255,12 @@ class Data:
         sequences = []
         if select is None:
             select = range(len(idx))
-        for x in select:
-            sequences.append(self.one_hot_encoder.decode(self.data[idx[x]]))
+        if True == self.is_rna_pwm:
+            for x in select:
+                sequences.append(self.data[idx[x]])
+        else:
+            for x in select:
+                sequences.append(self.one_hot_encoder.decode(self.data[idx[x]]))
         return sequences
 
 
