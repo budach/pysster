@@ -496,12 +496,6 @@ class Model:
                            kernel_initializer = RandomUniform(),
                            kernel_constraint = max_norm(self.params["kernel_constraint"]),
                            return_sequences = return_sequences)(self.cnn)
-            # self.model.add(rnn(units = self.params["rnn_units"],
-            #                    dropout = self.params["rnn_dropout_input"],
-            #                    recurrent_dropout = self.params["rnn_dropout_recurrent"],
-            #                    kernel_initializer = RandomUniform(),
-            #                    kernel_constraint = max_norm(self.params["kernel_constraint"]),
-            #                    return_sequences = return_sequences))
         else:
             self.cnn = Bidirectional(rnn(units = self.params["rnn_units"],
                                          dropout = self.params["rnn_dropout_input"],
@@ -509,28 +503,17 @@ class Model:
                                          kernel_initializer = RandomUniform(),
                                          kernel_constraint = max_norm(self.params["kernel_constraint"]),
                                          return_sequences = return_sequences))(self.cnn)
-            # self.model.add(Bidirectional(
-            #     rnn(units = self.params["rnn_units"],
-            #         dropout = self.params["rnn_dropout_input"],
-            #         recurrent_dropout = self.params["rnn_dropout_recurrent"],
-            #         kernel_initializer = RandomUniform(),
-            #         kernel_constraint = max_norm(self.params["kernel_constraint"]),
-            #         return_sequences = return_sequences)))
 
 
     def _prepare_model(self):
         np.random.seed(self.params["seed"])
         random.seed(self.params["seed"])
 
-
         # input
         self.main_input = Input(shape = self.params["input_shape"])
-        # self.model = Sequential()
-        # self.model.add(Dropout(input_shape = self.params["input_shape"],
-        #                        rate = self.params["dropout_input"]))
+        self.cnn = Dropout(rate = self.params["dropout_input"])(self.main_input)
 
         # convolutional/pooling block
-        self.cnn = Dropout(rate = self.params["dropout_input"])(self.main_input)
         for x in range(self.params["conv_num"]):
             self.cnn = Conv1D(filters = self.params["kernel_num"],
                               kernel_size = self.params["kernel_len"],
@@ -541,17 +524,7 @@ class Model:
             self.cnn = MaxPooling1D(pool_size = self.params["pool_size"],
                                     strides = self.params["pool_stride"])(self.cnn)
             self.cnn = Dropout(rate = self.params["dropout_conv"])(self.cnn)
-        # for x in range(self.params["conv_num"]):
-        #     self.model.add(Conv1D(filters = self.params["kernel_num"],
-        #                           kernel_size = self.params["kernel_len"],
-        #                           padding = "valid",
-        #                           kernel_initializer = RandomUniform(),
-        #                           kernel_constraint = max_norm(self.params["kernel_constraint"]),
-        #                           activation = "relu"))
-        #     self.model.add(MaxPooling1D(pool_size = self.params["pool_size"],
-        #                                 strides = self.params["pool_stride"]))
-        #     self.model.add(Dropout(rate = self.params["dropout_conv"]))
-        
+
         # recurrent block
         if self.params["rnn_type"] != None:
             if self.params["rnn_type"] == "LSTM":
@@ -565,7 +538,6 @@ class Model:
             self._add_rnn_layer(rnn, return_sequences=False)
         else:
             self.cnn = Flatten()(self.cnn)
-            # self.model.add(Flatten())
         
         # dense block
         for x in range(self.params["dense_num"]):
@@ -578,13 +550,7 @@ class Model:
                              kernel_constraint = max_norm(self.params["kernel_constraint"]),
                              activation = "relu")(self.cnn)
             self.cnn = Dropout(rate = self.params["dropout_dense"])(self.cnn)
-        # for x in range(self.params["dense_num"]):
-        #     self.model.add(Dense(units = self.params["neuron_num"],
-        #                          kernel_initializer = RandomUniform(),
-        #                          kernel_constraint = max_norm(self.params["kernel_constraint"]),
-        #                          activation = "relu"))
-        #     self.model.add(Dropout(rate = self.params["dropout_dense"]))
-        
+
         # output
         self.cnn = Dense(units = self.params["class_num"],
                          kernel_initializer = RandomUniform(),
@@ -594,9 +560,6 @@ class Model:
         else:
             self.inputs = [self.main_input]
         self.model = KModel(inputs=self.inputs, outputs=[self.cnn])
-        # self.model.add(Dense(units = self.params["class_num"],
-        #                      kernel_initializer = RandomUniform(),
-        #                      activation = self.params['activation']))
         self.model.compile(loss = self.params['loss'],
                            optimizer = Adam(lr = self.params["learning_rate"]))
 
@@ -669,11 +632,7 @@ class Model:
     def _extract_pwm(self, input_data, annotation, alphabet):
         pwm = []
         for char in alphabet:
-            if char in "().[|": 
-                pattern = "\{}".format(char)
-            else:
-                pattern = char
-            idx = [m.start() for m in re.finditer(pattern, annotation)]
+            idx = [m.start() for m in re.finditer(re.escape(char), annotation)]
             pwm.append(np.sum(input_data[:,idx], axis = 1))
         return np.transpose(np.array(pwm))
 
@@ -686,8 +645,8 @@ class Model:
             if success: break
         if not success:
             print("Warning: loss did not converge for node {} in layer '{}'".format(node_index, layer_name))
+        input_data = np.apply_along_axis(utils.softmax, 1, input_data)
         if not data.is_rna:
-            input_data = np.apply_along_axis(utils.softmax, 1, input_data)
             return [Motif(data.one_hot_encoder.alphabet, pwm = input_data).plot(colors_sequence, scale=0.25)]
         else:
             if data.is_rna_pwm:
@@ -697,8 +656,6 @@ class Model:
                 annotation_seq, annotation_struct = data.alpha_coder.decode(data.alpha_coder.alphabet)
             pwm_struct = self._extract_pwm(input_data, annotation_struct, data.alpha_coder.alph1)
             pwm_seq = self._extract_pwm(input_data, annotation_seq, data.alpha_coder.alph0)
-            pwm_struct = np.apply_along_axis(utils.softmax, 1, pwm_struct)
-            pwm_seq = np.apply_along_axis(utils.softmax, 1, pwm_seq)
             motif_struct = Motif(data.alpha_coder.alph1, pwm = pwm_struct).plot(colors_structure, scale=0.25)
             motif_seq = Motif(data.alpha_coder.alph0, pwm = pwm_seq).plot(colors_sequence, scale=0.25)
             return [motif_seq, motif_struct]

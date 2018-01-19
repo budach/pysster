@@ -1,6 +1,8 @@
 # Class Data - Documentation
 
-The Data class provides a convenient way to handle bioligcal sequence and structure data for multiple classes. Sequence and structure data are automatically converted into one-hot encoded matrices and split into training/validation/test sets. The data object can then be passed to Grid\_Search or Model objects for easy training and evaluation.
+The Data class provides a convenient way to handle bioligcal sequence and structure data for multiple classes. Sequence and structure data are automatically converted into one-hot encoded matrices and split into training/validation/test sets. The data object can then be passed to Grid\_Search or Model objects for easy training and evaluation. 
+
+ Input format: Data objects accept raw strings in fasta format as input for sequence and structure data or optionally position-weight matrices for structure data (see \_\_init\_\_ function). Strings can contain all uppercase alphanumeric characters and the following special characters: "()[]{}<\>,.|". Additional handcrafted features may be added using the load\_additional\_data function.
 
 ## Methods - Overview
 
@@ -31,7 +33,13 @@ Load the sequences and split the data into 70%/15%/15% training/validation/test.
 
  The provided alphabet must match the content of the fasta files. For sequence-only files a single string (e.g. 'ACGT' or 'ACGU') should be provided and for sequence-structure files a tuple should be provided (e.g. ('ACGU', '().')). Characters that are not part of the provided alphabets will be randomly replaced with an alphabet character. 
 
- We support all uppercase alphanumeric characters and the following additional characters for alphabets: "()[]{}<\>,.|". Thus, it is possible to use and combine (in the sequence-structure case) arbitrarily defined alphabets as long as the data is provided in the described fasta format. 
+ We support all uppercase alphanumeric characters and the following additional characters for alphabets: "()[]{}<\>,.|". Thus, it is possible to use and combine (in the sequence-structure case) arbitrarily defined alphabets as long as the data is provided in the described fasta format, i.e. you are not restricted to only use this package for DNA/RNA. 
+
+ If you don't want to work with a single minimum free energy structure (as some RNA structure prediction tools can output multiple predictions) you can also provide a position-weight matrix representing the structure instead of a single string (matrix entries must be separated by a space or tab): 
+
+ \>header GGGGUUCCCC 0.9 0.8 0.7 0.9 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.2 0.7 0.8 0.9 0.1 0.2 0.3 0.1 1.0 1.0 0.8 0.3 0.2 0.1 
+
+ If you provide "()." as the alphabet the first line of the matrix given above will correspond to "(", the second to ")" and the third to ".". Each column of the matrix must add up to 1. Again, we don't restrict the usage of the package to DNA/RNA, therefore the matrix given above can represent whatever you want it to represent, as long as you provide a valid alphabet. 
 
 
 
@@ -63,7 +71,7 @@ def load_additional_data(self, class_files, is_categorical=False, standardize=Fa
 ```
 Add additional handcrafted numerical or categorical features to the network. 
 
- For every input sequence additional data can be added to the network (e.g. location, average sequence conservation, etc.). The data will be concatenated to the input of the first dense layer. Input files are text files and must contain one value per line, e.g.: 
+ For every input sequence additional data can be added to the network (e.g. location, average sequence conservation, etc.). The data will be concatenated to the input of the first dense layer. Input files are text files and must contain one value per line (values can be strings if the data is categorical), e.g.: 
 
   0.679  
   0.961  
@@ -72,7 +80,7 @@ Add additional handcrafted numerical or categorical features to the network.
   ...  
  
 
- The number of provided files must match the fasta files provided to the \_\_init\_\_ function (e.g. if you provided a list of 3 files to \_\_init\_\_ you must provide a list of 3 files here as well) and the number of lines in each file must match the number of entries in the correspoding fasta file. If you want to add multiple features simply call this function multiple times. 
+ The number of provided files must match the fasta files provided to the \_\_init\_\_ function (e.g. if you provided a list of 3 files to \_\_init\_\_ you must provide a list of 3 files here as well) and the number of lines in each file must match the number of entries in the corresponding fasta file. If you want to add multiple features simply call this function multiple times. 
 
  Interpreting the influence of arbitrary additional data for a neural network is hard and at the moment we don't provide any means to do so. You should run your model with and without the additional data and check if the predictive performance improves. In general, if you have many handcrafted features you might want to consider using a different machine learning technique. 
 

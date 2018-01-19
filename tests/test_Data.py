@@ -4,6 +4,7 @@ from os.path import dirname
 
 
 from pysster.Data import Data
+from pysster.Model import Model
 
 
 def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
@@ -17,11 +18,17 @@ class Test_Data(unittest.TestCase):
         folder = dirname(__file__)
         dna_files = [folder + "/data/dna_pos.fasta", folder + "/data/dna_neg.fasta"]
         rna_files = folder + "/data/rna.fasta"
+        rna_pwm = [folder + '/data/rna_pwm1.fasta', folder + '/data/rna_pwm2.fasta']
+        rna_pwm_add = [folder + '/data/rna_pwm1_add.txt', folder + '/data/rna_pwm2_add.txt']
         self.data_dna = Data(dna_files, "ACGT")
         self.data_rna_dot = Data(rna_files, ("ACGU", "()."))
+        self.data_pwm = Data(rna_pwm, ('ACGU', '().'), structure_pwm=True)
+        self.data_pwm.load_additional_data(rna_pwm_add, is_categorical=False)
+        self.data_pwm.load_additional_data(rna_pwm_add, is_categorical=True)
 
-
+    
     def test_data_init_dna(self):
+        self.assertFalse(self.data_dna.is_rna_pwm)
         self.assertFalse(self.data_dna.is_rna)
         self.assertFalse(self.data_dna.multilabel)
         self.assertTrue(len(self.data_dna.data) == 100)
@@ -37,6 +44,7 @@ class Test_Data(unittest.TestCase):
 
 
     def test_data_init_rna(self):
+        self.assertFalse(self.data_rna_dot.is_rna_pwm)
         self.assertTrue(len(self.data_rna_dot.data) == 20)
         self.assertTrue(self.data_rna_dot.data[0].shape == (40, 12))
         self.assertTrue(self.data_rna_dot.alpha_coder.alph1 == '().')
@@ -130,6 +138,7 @@ class Test_Data(unittest.TestCase):
                                 int(text[3].split()[x+1]) +
                                 int(text[4].split()[x+1]) == int(text[1].split()[x+2]))
     
+
     def test_data_get_labels(self):
         labels = self.data_dna.get_labels("test")
         self.assertTrue(labels.shape == (15, 2))
@@ -152,3 +161,46 @@ class Test_Data(unittest.TestCase):
         self.assertTrue(labels.shape == (20, 3))
         self.assertTrue((labels.sum(axis=1) <= 3).all())
         self.assertTrue((labels.sum(axis=0) == [8,11,12]).all())
+     
+
+    def test_data_pwm_struct(self):
+        self.assertTrue(self.data_pwm.is_rna_pwm == True)
+        self.assertTrue(len(self.data_pwm.data) == 32)
+        self.assertTrue(self.data_pwm.data[0].shape == (10, 12))
+        ref = np.array([0.9,0,0.1,0,0,0,0,0,0,0,0,0,
+                        0,0,0,0,0,0,0,0,0,0.8,0,0.2,
+                        0.7,0,0.3,0,0,0,0,0,0,0,0,0,
+                        0,0,0,0,0,0,0,0,0,0.9,0,0.1,
+                        0.0,0,1.0,0,0,0,0,0,0,0,0,0,
+                        0,0,0,0,0,0,0,0,0,0.0,0,1.0,
+                        0.0,0.2,0.8,0,0,0,0,0,0,0,0,0,
+                        0,0,0,0,0,0,0,0,0,0.0,0.7,0.3,
+                        0.0,0.8,0.2,0,0,0,0,0,0,0,0,0,
+                        0,0,0,0,0,0,0,0,0,0.0,0.9,0.1])
+        ref.shape = (10,12)
+        self.assertTrue(np.allclose(self.data_pwm.data[0], ref))
+        seqs = self.data_pwm._get_sequences(0, 'all')
+        self.assertTrue(len(seqs) == 16)
+        self.assertTrue(np.allclose(ref, seqs[15]))
+
+
+    def test_data_additional(self):
+        self.assertTrue(len(self.data_pwm.meta) == 2)
+        self.assertTrue(self.data_pwm.meta[0]['is_categorical'] == False)
+        self.assertTrue(self.data_pwm.meta[1]['is_categorical'] == True)
+        self.assertTrue(self.data_pwm.meta[0]['data'] == [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1])
+        self.assertTrue(len(self.data_pwm.meta[1]['data']) == 32)
+        for x in self.data_pwm.meta[1]['data']:
+            self.assertTrue(sum(x) == 1)
+        self.assertTrue((self.data_pwm.meta[1]['data'][0] == self.data_pwm.meta[1]['data'][31]).all())
+        self.assertTrue((self.data_pwm.meta[1]['data'][13] == self.data_pwm.meta[1]['data'][18]).all())
+        addi = self.data_pwm._get_additional_data([0,1,15,16], 0, 4)
+        self.assertTrue(len(addi) == 4)
+        self.assertTrue(np.allclose(addi[0], [1,*self.data_pwm.meta[1]['data'][0]]))
+        self.assertTrue(np.allclose(addi[1], [2,*self.data_pwm.meta[1]['data'][1]]))
+        self.assertTrue(np.allclose(addi[2], [16,*self.data_pwm.meta[1]['data'][15]]))
+        self.assertTrue(np.allclose(addi[3], [16,*self.data_pwm.meta[1]['data'][16]]))
+        mod = Model({"conv_num":1, "kernel_num":2, "kernel_len":4, "neuron_num":2, "epochs":2}, self.data_pwm)
+        mod.train(self.data_pwm, verbose=True)
+        predictions = mod.predict(self.data_pwm, "all")
+        self.assertTrue(predictions.shape == (32,2))

@@ -17,6 +17,11 @@ class Data:
     multiple classes. Sequence and structure data are automatically converted into one-hot
     encoded matrices and split into training/validation/test sets. The data object can then
     be passed to Grid_Search or Model objects for easy training and evaluation.
+
+    Input format: Data objects accept raw strings in fasta format as input for sequence and structure
+    data or optionally position-weight matrices for structure data (see __init__ function). Strings
+    can contain all uppercase alphanumeric characters and the following special characters: "()[]{}<>,.|".
+    Additional handcrafted features may be added using the load_additional_data function.
     """
 
     def __init__(self, class_files, alphabet, structure_pwm=False):
@@ -45,7 +50,24 @@ class Data:
 
         We support all uppercase alphanumeric characters and the following additional characters
         for alphabets: "()[]{}<>,.|". Thus, it is possible to use and combine (in the sequence-structure
-        case) arbitrarily defined alphabets as long as the data is provided in the described fasta format.
+        case) arbitrarily defined alphabets as long as the data is provided in the described fasta format,
+        i.e. you are not restricted to only use this package for DNA/RNA.
+
+        If you don't want to work with a single minimum free energy structure (as some RNA structure
+        prediction tools can output multiple predictions) you can also provide a position-weight
+        matrix representing the structure instead of a single string (matrix entries must be
+        separated by a space or tab):
+
+        >header
+        GGGGUUCCCC
+        0.9 0.8 0.7 0.9 0.0 0.0 0.0 0.0 0.0 0.0
+        0.0 0.0 0.0 0.0 0.0 0.0 0.2 0.7 0.8 0.9
+        0.1 0.2 0.3 0.1 1.0 1.0 0.8 0.3 0.2 0.1
+
+        If you provide "()." as the alphabet the first line of the matrix given above will correspond to
+        "(", the second to ")" and the third to ".". Each column of the matrix must add up to 1. Again,
+        we don't restrict the usage of the package to DNA/RNA, therefore the matrix given above can represent
+        whatever you want it to represent, as long as you provide a valid alphabet.
 
         Parameters
         ----------
@@ -76,6 +98,11 @@ class Data:
             self.multilabel = False
         self.one_hot_encoder = One_Hot_Encoder(alphabet)
         data_loader(class_files)
+        # check if all sequences have the same length
+        length = self.data[0].shape[0]
+        for x in range(1, len(self.data)):
+            if length != self.data[x].shape[0]:
+                raise RuntimeError('All sequences must have the same length.')
         self._process_labels()
         self.train_val_test_split(0.7, 0.15)
 
@@ -113,7 +140,8 @@ class Data:
 
         For every input sequence additional data can be added to the network (e.g. location,
         average sequence conservation, etc.). The data will be concatenated to the input of the first dense
-        layer. Input files are text files and must contain one value per line, e.g.:
+        layer. Input files are text files and must contain one value per line (values can be strings
+        if the data is categorical), e.g.:
         
         '0.679
         '0.961
@@ -243,20 +271,20 @@ class Data:
         self.data, self.labels = [], []
         replacer_seq = lambda x: choice(self.alpha_coder.alph0)
         replacer_struct = lambda x: choice(self.alpha_coder.alph1)
+        pattern_seq = r"[^{}]".format(re.escape(self.alpha_coder.alph0))
+        pattern_struct = r"[^{}]".format(re.escape(self.alpha_coder.alph1))
         for class_id, file_name in enumerate(class_files):
             handle = io.get_handle(file_name, "rt")
             for header, block in io.parse_fasta(handle, "_"):
                 lines = block.split("_")
-                sequence = re.sub(r"[^{}]".format(self.alpha_coder.alph0),
-                                  replacer_seq, lines[0])
+                sequence = re.sub(pattern_seq, replacer_seq, lines[0])
                 if True == self.is_rna_pwm:
                     pwm = np.zeros((len(sequence), len(self.alpha_coder.alph1)), dtype=np.float32)
                     for x in range(1, pwm.shape[1]+1):
                         pwm[:, x-1] = list(map(float, lines[x].split()))
                     self.data.append(self._join_seq_pwm(sequence, pwm))
                 else:
-                    structure = re.sub(r"[^{}]".format(self.alpha_coder.alph1),
-                                    replacer_struct, lines[1].split(" ")[0].upper())
+                    structure = re.sub(pattern_struct, replacer_struct, lines[1].split(" ")[0].upper())
                     joined = self.alpha_coder.encode((sequence, structure))
                     self.data.append(self.one_hot_encoder.encode(joined))
                 if self.multilabel:
