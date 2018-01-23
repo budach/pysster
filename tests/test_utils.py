@@ -3,6 +3,7 @@ import numpy as np
 from tempfile import gettempdir
 from os.path import dirname, isfile
 from os import remove
+from shutil import which
 
 
 from pysster.Data import Data
@@ -58,7 +59,21 @@ class Test_utils(unittest.TestCase):
     
 
     def test_utils_predict_structures(self):
+        # RNAfold and RNAlib bindings not available
+        skip = False
+        try:
+            from RNA import fold
+        except:
+            if which("RNAfold") == None:
+                try:
+                    utils.predict_structures(self.folder+"/data/rna_pred.fasta",
+                                             gettempdir()+"/test2.fasta", 2, False)
+                    raise RuntimeError('predict_structures should have raised an error at this point, but did not')
+                except:
+                    skip = True # we got an error, as expected
         #annotate=False
+        if skip == True:
+            return
         utils.predict_structures(self.folder+"/data/rna_pred.fasta",
                                  gettempdir()+"/test2.fasta", 2, False)
         if not isfile(gettempdir()+"/test2.fasta"): return
