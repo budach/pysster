@@ -44,7 +44,7 @@ class Model:
     '| parameter         | default | description |
     '|:-                 |:-       |:-           |
     '| conv_num          | 2       | number of convolutional/pooling layers |
-    '| kernel_num        | 50      | number of kernels in each conv layer |
+    '| kernel_num        | 30      | number of kernels in each conv layer |
     '| kernel_len        | 25      | length of kernels |
     '| pool_size         | 2       | size of pooling windows |
     '| pool_stride       | 2       | step size of pooling operation |
@@ -53,7 +53,7 @@ class Model:
     '| dropout_input     | 0.1     | dropout portion after input |
     '| dropout_conv      | 0.3     | dropout portion after pooling layers |
     '| dropout_dense     | 0.6     | dropout portion after dense layers |
-    '| batch_size        | 256     | batch size during training |
+    '| batch_size        | 128     | batch size during training |
     '| learning_rate     | 0.0005  | learning rate of Adam optimizer |
     '| patience_lr       | 5       | number of epochs without validation loss improvement before halving learning rate |
     '| patience_stopping | 15      | number of epochs without validation loss improvement before stopping training |
@@ -470,8 +470,8 @@ class Model:
 
 
     def _check_params(self):
-        default_params = {'conv_num': 2, 'kernel_num': 50, 'kernel_len': 25, 
-                          'dense_num': 1, 'neuron_num': 100, 'batch_size': 256,
+        default_params = {'conv_num': 2, 'kernel_num': 30, 'kernel_len': 25, 
+                          'dense_num': 1, 'neuron_num': 100, 'batch_size': 128,
                           'pool_size': 2, 'pool_stride': 2, "kernel_constraint": 3,
                           'dropout_input': 0.1, 'dropout_conv': 0.3, 'dropout_dense': 0.6,
                           'learning_rate': 0.0005, 'patience_lr': 5, 'patience_stopping': 15,

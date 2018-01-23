@@ -58,11 +58,11 @@ class Data:
         matrix representing the structure instead of a single string (matrix entries must be
         separated by a space or tab):
 
-        >header
-        GGGGUUCCCC
-        0.9 0.8 0.7 0.9 0.0 0.0 0.0 0.0 0.0 0.0
-        0.0 0.0 0.0 0.0 0.0 0.0 0.2 0.7 0.8 0.9
-        0.1 0.2 0.3 0.1 1.0 1.0 0.8 0.3 0.2 0.1
+        '>header
+        'GGGGUUCCCC
+        '0.9 0.8 0.7 0.9 0.0 0.0 0.0 0.0 0.0 0.0
+        '0.0 0.0 0.0 0.0 0.0 0.0 0.2 0.7 0.8 0.9
+        '0.1 0.2 0.3 0.1 1.0 1.0 0.8 0.3 0.2 0.1
 
         If you provide "()." as the alphabet the first line of the matrix given above will correspond to
         "(", the second to ")" and the third to ".". Each column of the matrix must add up to 1. Again,
@@ -139,9 +139,10 @@ class Data:
         """ Add additional handcrafted numerical or categorical features to the network.
 
         For every input sequence additional data can be added to the network (e.g. location,
-        average sequence conservation, etc.). The data will be concatenated to the input of the first dense
-        layer. Input files are text files and must contain one value per line (values can be strings
-        if the data is categorical), e.g.:
+        average sequence conservation, etc.). The data will be concatenated to the input of the
+        first dense layer (i.e. additional neurons in the first dense layer will be created). Input
+        files are text files and must contain one value per line (values can be strings if the data
+        is categorical), e.g.:
         
         '0.679
         '0.961
@@ -277,7 +278,7 @@ class Data:
             handle = io.get_handle(file_name, "rt")
             for header, block in io.parse_fasta(handle, "_"):
                 lines = block.split("_")
-                sequence = re.sub(pattern_seq, replacer_seq, lines[0])
+                sequence = re.sub(pattern_seq, replacer_seq, lines[0].upper())
                 if True == self.is_rna_pwm:
                     pwm = np.zeros((len(sequence), len(self.alpha_coder.alph1)), dtype=np.float32)
                     for x in range(1, pwm.shape[1]+1):
