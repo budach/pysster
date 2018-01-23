@@ -37,6 +37,8 @@ def class2md(block):
             block["content"][i] = '\n\n'
         elif line.strip().startswith("'"):
             block["content"][i] = ' ``' + line.strip()[1:] + '``  \n'
+        elif line.strip().startswith("#"):
+            block["content"][i] = ' ' + line.strip()[1:] + '  \n'
         else:
             block["content"][i] = line.strip()
 
