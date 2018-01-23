@@ -33,7 +33,12 @@ Plot the motif.
 
  The default height of the plot is 754 pixel. The width depends on the length of the motif. Using, for instance, a scale parameter of 0.5 halves both height and width. The color of individual letters can be defined via the colors dict using RGB values, e.g. {'A':(255,0,0), 'C':(0,0,255)} will result in red A's and blue C's. Non-defined characters will be plotted black. 
 
- The alphabets 'ACGT', 'ACGU', and 'HIMS' have predefined colors (that can be overwritten): "ACGT" -\> {'A':(212,0,0), 'C':(0,102,128), 'G':(255,204,0), 'T':(0,170,0)} "ACGU" -\> {'A':(212,0,0), 'C':(0,102,128), 'G':(255,204,0), 'U':(0,170,0)} "HIMS" -\> {'H':(212,0,0), 'I':(255,204,0), 'M':(68,170,0), 'S':(204,0,255)} 
+ The alphabets 'ACGT', 'ACGU', and 'HIMS' have predefined colors (that can be overwritten): 
+
+  "ACGT" -\> {'A':(212,0,0), 'C':(0,102,128), 'G':(255,204,0), 'T':(0,170,0)}  
+  "ACGU" -\> {'A':(212,0,0), 'C':(0,102,128), 'G':(255,204,0), 'U':(0,170,0)}  
+  "HIMS" -\> {'H':(212,0,0), 'I':(255,204,0), 'M':(68,170,0), 'S':(204,0,255)}  
+ 
 
 
 

@@ -37,7 +37,12 @@ Load the sequences and split the data into 70%/15%/15% training/validation/test.
 
  If you don't want to work with a single minimum free energy structure (as some RNA structure prediction tools can output multiple predictions) you can also provide a position-weight matrix representing the structure instead of a single string (matrix entries must be separated by a space or tab): 
 
- \>header GGGGUUCCCC 0.9 0.8 0.7 0.9 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.2 0.7 0.8 0.9 0.1 0.2 0.3 0.1 1.0 1.0 0.8 0.3 0.2 0.1 
+  \>header  
+  GGGGUUCCCC  
+  0.9 0.8 0.7 0.9 0.0 0.0 0.0 0.0 0.0 0.0  
+  0.0 0.0 0.0 0.0 0.0 0.0 0.2 0.7 0.8 0.9  
+  0.1 0.2 0.3 0.1 1.0 1.0 0.8 0.3 0.2 0.1  
+ 
 
  If you provide "()." as the alphabet the first line of the matrix given above will correspond to "(", the second to ")" and the third to ".". Each column of the matrix must add up to 1. Again, we don't restrict the usage of the package to DNA/RNA, therefore the matrix given above can represent whatever you want it to represent, as long as you provide a valid alphabet. 
 
@@ -71,7 +76,7 @@ def load_additional_data(self, class_files, is_categorical=False, standardize=Fa
 ```
 Add additional handcrafted numerical or categorical features to the network. 
 
- For every input sequence additional data can be added to the network (e.g. location, average sequence conservation, etc.). The data will be concatenated to the input of the first dense layer. Input files are text files and must contain one value per line (values can be strings if the data is categorical), e.g.: 
+ For every input sequence additional data can be added to the network (e.g. location, average sequence conservation, etc.). The data will be concatenated to the input of the first dense layer (i.e. additional neurons in the first dense layer will be created). Input files are text files and must contain one value per line (values can be strings if the data is categorical), e.g.: 
 
   0.679  
   0.961  

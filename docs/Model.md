@@ -6,24 +6,24 @@ The Model class represents a convolutional neural network and provides functions
 
  The network can be tuned using the following hyperparameters which can be provided through the 'params' parameter of the \_\_init\_\_ function: 
 
-  | parameter         | default | description |  
-  |:-                 |:-       |:-           |  
-  | conv\_num          | 2       | number of convolutional/pooling layers |  
-  | kernel\_num        | 50      | number of kernels in each conv layer |  
-  | kernel\_len        | 25      | length of kernels |  
-  | pool\_size         | 2       | size of pooling windows |  
-  | pool\_stride       | 2       | step size of pooling operation |  
-  | dense\_num         | 1       | number of dense layers |  
-  | neuron\_num        | 100     | number of neurons in each dense layer |  
-  | dropout\_input     | 0.1     | dropout portion after input |  
-  | dropout\_conv      | 0.3     | dropout portion after pooling layers |  
-  | dropout\_dense     | 0.6     | dropout portion after dense layers |  
-  | batch\_size        | 256     | batch size during training |  
-  | learning\_rate     | 0.0005  | learning rate of Adam optimizer |  
-  | patience\_lr       | 5       | number of epochs without validation loss improvement before halving learning rate |  
-  | patience\_stopping | 15      | number of epochs without validation loss improvement before stopping training |  
-  | epochs            | 500     | maximum number of training epochs |  
-  | kernel\_constraint | 3       | max-norm weight constraint |  
+  ``| parameter         | default | description |``  
+  ``|:-                 |:-       |:-           |``  
+  ``| conv\_num          | 2       | number of convolutional/pooling layers |``  
+  ``| kernel\_num        | 30      | number of kernels in each conv layer |``  
+  ``| kernel\_len        | 25      | length of kernels |``  
+  ``| pool\_size         | 2       | size of pooling windows |``  
+  ``| pool\_stride       | 2       | step size of pooling operation |``  
+  ``| dense\_num         | 1       | number of dense layers |``  
+  ``| neuron\_num        | 100     | number of neurons in each dense layer |``  
+  ``| dropout\_input     | 0.1     | dropout portion after input |``  
+  ``| dropout\_conv      | 0.3     | dropout portion after pooling layers |``  
+  ``| dropout\_dense     | 0.6     | dropout portion after dense layers |``  
+  ``| batch\_size        | 128     | batch size during training |``  
+  ``| learning\_rate     | 0.0005  | learning rate of Adam optimizer |``  
+  ``| patience\_lr       | 5       | number of epochs without validation loss improvement before halving learning rate |``  
+  ``| patience\_stopping | 15      | number of epochs without validation loss improvement before stopping training |``  
+  ``| epochs            | 500     | maximum number of training epochs |``  
+  ``| kernel\_constraint | 3       | max-norm weight constraint |``  
  
 
  Not all parameters are equally important when doing a hyperparameter grid search. The ones with a strong influence are usually conv\_num (range 1-3), kernel\_num (range 50-300), neuron\_num (50-1000) and the dropout parameters (around 0.1 for the input and 0.2-0.6 otherwise). 
@@ -32,14 +32,14 @@ The Model class represents a convolutional neural network and provides functions
 
  For advanced users we offer the option to add recurrent layers (RNN) between the convolutional and the dense block. Two kinds of layers are possible: Long Short Term Memory (LSTM) or Gated Recurrent Units (GRU). They can be tuned using the following hyperparameters provided through the 'params' parameter as above: 
 
-  | parameter             | default | description |  
-  |:-                     |:-       |:-           |  
-  | rnn\_type              | None    | "LSTM" or "GRU" (strings) are possible layers at the moment |  
-  | rnn\_num               | 1       | number of RNN layers |  
-  | rnn\_units             | 32      | number of output dimensions of each RNN layer |  
-  | rnn\_bidirectional     | True    | True or False (bool) whether layers should be bidirectional |  
-  | rnn\_dropout\_input     | 0.2     | dropout portion for input connections |  
-  | rnn\_dropout\_recurrent | 0.0     | dropout portion for recurrent connections |  
+  ``| parameter             | default | description |``  
+  ``|:-                     |:-       |:-           |``  
+  ``| rnn\_type              | None    | "LSTM" or "GRU" (strings) are possible layers at the moment |``  
+  ``| rnn\_num               | 1       | number of RNN layers |``  
+  ``| rnn\_units             | 32      | number of output dimensions of each RNN layer |``  
+  ``| rnn\_bidirectional     | True    | True or False (bool) whether layers should be bidirectional |``  
+  ``| rnn\_dropout\_input     | 0.2     | dropout portion for input connections |``  
+  ``| rnn\_dropout\_recurrent | 0.0     | dropout portion for recurrent connections |``  
  
 
  From our experience RNN layers increase the runtime performance a lot, but the predictive performance only a little or not at all, therefore use them with caution. If you want to get rid of the convolutional or dense block, you can simply set "conv\_num" or "dense\_num" to 0. However, motif visualization will not be possible anymore if the first network layer is not a convolutional layer.
