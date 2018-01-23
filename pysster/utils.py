@@ -203,7 +203,7 @@ def predict_structures(input_file, output_file, num_processes=None, annotate=Fal
         predictor = _predict_binary
     handle = get_handle(input_file, "rt")
     if num_processes == None:
-        num_processes = int(os.cpu_count()/2)
+        num_processes = max(1, int(os.cpu_count()/2))
     with Pool(num_processes) as pool:
         if annotate:
             data = pool.starmap(func = _predict_and_annotate, 
