@@ -6,15 +6,15 @@ from time import time
 
 
 def main():
-    RBPs = [("tutorials/data/pum2.train.positive.fasta",
-             "tutorials/data/pum2.train.negative.fasta",
-             "tutorials/data/pum2.test.positive.fasta",
-             "tutorials/data/pum2.test.negative.fasta",
+    RBPs = [("data/pum2.train.positive.fasta",
+             "data/pum2.train.negative.fasta",
+             "data/pum2.test.positive.fasta",
+             "data/pum2.test.negative.fasta",
              "PUM2"),
-            ("tutorials/data/qki.train.positive.fasta",
-             "tutorials/data/qki.train.negative.fasta",
-             "tutorials/data/qki.test.positive.fasta",
-             "tutorials/data/qki.test.negative.fasta",
+            ("data/qki.train.positive.fasta",
+             "data/qki.train.negative.fasta",
+             "data/qki.test.positive.fasta",
+             "data/qki.test.negative.fasta",
              "QKI")]
 
     for entry in RBPs:
@@ -25,10 +25,10 @@ def main():
         start = time()
 
         # predict secondary structures
-        utils.predict_structures(entry[0], entry[0]+".struct.gz", 32, True)
-        utils.predict_structures(entry[1], entry[1]+".struct.gz", 32, True)
-        utils.predict_structures(entry[2], entry[2]+".struct.gz", 32, True)
-        utils.predict_structures(entry[3], entry[3]+".struct.gz", 32, True)
+        utils.predict_structures(entry[0], entry[0]+".struct.gz", annotate=True)
+        utils.predict_structures(entry[1], entry[1]+".struct.gz", annotate=True)
+        utils.predict_structures(entry[2], entry[2]+".struct.gz", annotate=True)
+        utils.predict_structures(entry[3], entry[3]+".struct.gz", annotate=True)
 
         # load data
         data = Data([entry[0]+".struct.gz", entry[1]+".struct.gz"], ("ACGU", "HIMS"))

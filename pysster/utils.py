@@ -154,12 +154,12 @@ def annotate_structures(input_file, output_file):
     handle_out.close()
 
 
-def predict_structures(input_file, output_file, num_processes=1, annotate=False):
+def predict_structures(input_file, output_file, num_processes=None, annotate=False):
     """ Predict secondary structures for RNA sequences.
 
     This is a convenience function to get quick RNA secondary structure predictions. The function
     will try to use the RNAlib python bindings or the RNAfold binary to perform predictions. If neither
-    can be found the function returns without creating an output file. Using the RNAlib python bindings
+    can be found the function raises a RuntimeError. Using the RNAlib python bindings
     is preferred as it is much faster.
 
     Entries of the output file look as follows if annotate = False:
@@ -189,7 +189,7 @@ def predict_structures(input_file, output_file, num_processes=1, annotate=False)
         A fasta file with sequences and structures.
     
     num_processes : int
-        The number of parallel processes to use for prediction. (default: 1)
+        The number of parallel processes to use for prediction. (default: number of available cores)
     
     annotate : bool
         Also output the annotated structure string in addition to the dot-bracket string. (default: false)
@@ -199,10 +199,11 @@ def predict_structures(input_file, output_file, num_processes=1, annotate=False)
         predictor = _predict_rnalib
     except:
         if which("RNAfold") == None:
-            print("Warning: Neither RNAlib python bindings nor RNAfold executable found.")
-            return
+            raise RuntimeError("Error: Neither RNAlib python bindings nor RNAfold executable found.")
         predictor = _predict_binary
     handle = get_handle(input_file, "rt")
+    if num_processes == None:
+        num_processes = int(os.cpu_count()/2)
     with Pool(num_processes) as pool:
         if annotate:
             data = pool.starmap(func = _predict_and_annotate, 
