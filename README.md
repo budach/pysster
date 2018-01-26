@@ -1,8 +1,7 @@
 ## pysster: a Sequence-STructure classifiER  [![Build Status](https://travis-ci.org/budach/pysster.svg?branch=master)](https://travis-ci.org/budach/pysster) [![Build status](https://ci.appveyor.com/api/projects/status/b7kkrb0qu5fsanbh/branch/master?svg=true)](https://ci.appveyor.com/project/budach/pysster/branch/master) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 ### Learning Sequence And Structure Motifs In Biological Sequences Using Convolutional Neural Networks
 
-pysster is a Python package for training and interpretation of convolutional neural networks on biological sequence data. Sequences are classified by learning sequence and structure motifs and the package offers sensible default parameters, an optional hyper-parameter optimization procedure and options to visualize learned motifs along with information
-about their positional and class enrichment. The main features of the package are:
+pysster is a Python package for training and interpretation of convolutional neural networks on biological sequence data. Sequences are classified by learning sequence and structure motifs and the package offers sensible default parameters, an optional hyper-parameter optimization procedure and options to visualize learned motifs. The main features of the package are:
 
 * multi-class and single-label or multi-label classifications
 * sensible default parameters and an optional hyper-parameter tuning
