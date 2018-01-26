@@ -1,7 +1,15 @@
 ## pysster: a Sequence-STructure classifiER  [![Build Status](https://travis-ci.org/budach/pysster.svg?branch=master)](https://travis-ci.org/budach/pysster) [![Build status](https://ci.appveyor.com/api/projects/status/b7kkrb0qu5fsanbh/branch/master?svg=true)](https://ci.appveyor.com/project/budach/pysster/branch/master) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-### Learning Sequence and Structure Motifs in DNA and RNA Sequences using Convolutional Neural Networks
+### Learning Sequence And Structure Motifs In Biological Sequences Using Convolutional Neural Networks
 
-pysster is a python package for training and interpretation of convolutional neural networks. The package can be applied to both DNA and RNA to classify sets of sequences by learning sequence and secondary structure motifs. It can handle multi-class and single-label or multi-label classifications, it offers an automated hyperparameter optimization and options to visualize learned motifs along with information about their positional and class enrichment. The package runs seamlessly on CPU and GPU and provides a simple interface to train and evaluate a network with a handful lines of code.
+pysster is a Python package for training and interpretation of convolutional neural networks on biological sequence data. Sequences are classified by learning sequence and structure motifs and the package offers sensible default parameters, an optional hyper-parameter optimization procedure and options to visualize learned motifs along with information
+about their positional and class enrichment. The main features of the package are:
+
+* multi-class and single-label or multi-label classifications
+* sensible default parameters and an optional hyper-parameter tuning
+* learning of motifs + interpretation in terms of positional and class enrichment and motif co-occurrence
+* support of input strings over user-defined alphabets (e.g. applicable to DNA, RNA, proteins, etc.)
+* optional use of structure information, handcrafted features and recurrent layers
+* seamless CPU or GPU computation
 
 The preprint can be found on [bioRxiv](https://www.biorxiv.org/content/early/2017/12/06/230086).
 
