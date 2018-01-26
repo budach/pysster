@@ -49,7 +49,7 @@ By the time of writing the most recent TensorFlow version is 1.4.0 and requires 
 * [Visualization by optimization of all network layers](https://github.com/budach/pysster/blob/master/tutorials/visualize_all_the_things.ipynb) (an alternative visualization method showcased using an artifical data set)
 
 **API documentation**
-* [Data objects](https://github.com/budach/pysster/blob/master/docs/Data.md) (handling and encoding of DNA/RNA input data)
+* [Data objects](https://github.com/budach/pysster/blob/master/docs/Data.md) (handling of input data)
 * [Model objects](https://github.com/budach/pysster/blob/master/docs/Model.md) (training and interpretation of networks)
 * [Grid_Search objects](https://github.com/budach/pysster/blob/master/docs/Grid_Search.md) (hyperparameter tuning)
 * [Motif objects](https://github.com/budach/pysster/blob/master/docs/Motif.md) (motif representation of a PWM)
