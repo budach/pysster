@@ -585,10 +585,10 @@ class Model:
                 for i, val in enumerate(idx):
                     val = val - val%len(data.alpha_coder.alph1)
                     structs[-1][i] = pwm[i,val:(val+len(data.alpha_coder.alph1))]
-                structs = np.sum(structs, 0) / len(structs)
-                logo_rna = Motif(data.alpha_coder.alph0, sequences = rnas)
-                logo_struct = Motif(data.alpha_coder.alph1, pwm = structs)
-                return (logo_rna, logo_struct)
+            structs = np.sum(structs, 0) / len(structs)
+            logo_rna = Motif(data.alpha_coder.alph0, sequences = rnas)
+            logo_struct = Motif(data.alpha_coder.alph1, pwm = structs)
+            return (logo_rna, logo_struct)
         # original structure input was a string
         if data.is_rna:
             rnas, structs = zip(*(data.alpha_coder.decode(seq) for seq in subseqs))
