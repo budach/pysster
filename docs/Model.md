@@ -42,7 +42,7 @@ The Model class represents a convolutional neural network and provides functions
   | rnn\_dropout\_recurrent | 0.0     | dropout portion for recurrent connections |  
  
 
- From our experience RNN layers increase the runtime performance a lot, but the predictive performance only a little or not at all, therefore use them with caution. If you want to get rid of the convolutional or dense block, you can simply set "conv\_num" or "dense\_num" to 0. However, motif visualization will not be possible anymore if the first network layer is not a convolutional layer.
+ From our experience RNN layers increase the runtime a lot, but the predictive performance only a little or not at all, therefore use them with caution. If you want to get rid of the convolutional or dense block, you can simply set "conv\_num" or "dense\_num" to 0. However, motif visualization will not be possible anymore if the first network layer is not a convolutional layer.
 
 ## Methods - Overview
 
