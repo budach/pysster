@@ -9,7 +9,7 @@ setup(
     author_email = 'budach@molgen.mpg.de',
     license = 'MIT',
     install_requires =  [
-        'numpy',
+        'numpy>=1.14.0',
         'matplotlib',
         'seaborn',
         'scikit-learn',

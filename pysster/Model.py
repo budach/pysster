@@ -84,11 +84,10 @@ class Model:
     #| rnn_dropout_input     | 0.2     | dropout portion for input connections |
     #| rnn_dropout_recurrent | 0.0     | dropout portion for recurrent connections |
 
-    From our experience RNN layers increase the runtime performance a lot, but the
-    predictive performance only a little or not at all, therefore use them with caution. If you
-    want to get rid of the convolutional or dense block, you can simply set "conv_num" or "dense_num"
-    to 0. However, motif visualization will not be possible anymore if the first network layer is not
-    a convolutional layer.
+    From our experience RNN layers increase the runtime a lot, but the predictive performance only
+    a little or not at all, therefore use them with caution. If you want to get rid of the
+    convolutional or dense block, you can simply set "conv_num" or "dense_num" to 0. However, motif
+    visualization will not be possible anymore if the first network layer is not a convolutional layer.
     """
 
     def __init__(self, params, data, seed = None):
@@ -132,6 +131,8 @@ class Model:
             ''.join(random.choice(string.ascii_uppercase) for _ in range(15))
         )
         self._check_params()
+        if self.params["dense_num"] == 0 and len(data.meta) > 0:
+            print("Warning: model doesn't have dense layers, the available additional data are not used!")
         self._prepare_callbacks()
         self._prepare_model()
 
@@ -226,6 +227,8 @@ class Model:
         results : dict
             A dict with 3 values ('activations', 'labels, 'group', see above)
         """
+        if not self.model.layers[2].name.startswith("conv1d"):
+            raise RuntimeError("First layer is not a convolutional layer.")
         tmp_model = KModel(self.model.input, self.model.layers[2].output)
         data_gen = data._data_generator(group, self.params['batch_size'], False, False, meta=True)
         idx = data._get_idx(group)
