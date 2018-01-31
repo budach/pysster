@@ -1,0 +1,1 @@
+TAF2N, time in seconds: 3960.9433205127716

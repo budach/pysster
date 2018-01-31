@@ -1,0 +1,1 @@
+NOVA, time in seconds: 2531.1975955963135

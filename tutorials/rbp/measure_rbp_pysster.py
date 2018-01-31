@@ -6,6 +6,7 @@ from time import time
 
 
 def main():
+
     RBPs = [("data/pum2.train.positive.fasta",
              "data/pum2.train.negative.fasta",
              "data/pum2.test.positive.fasta",
@@ -15,7 +16,27 @@ def main():
              "data/qki.train.negative.fasta",
              "data/qki.test.positive.fasta",
              "data/qki.test.negative.fasta",
-             "QKI")]
+             "QKI"),
+            ("data/igf2bp123.train.positive.fasta",
+             "data/igf2bp123.train.negative.fasta",
+             "data/igf2bp123.test.positive.fasta",
+             "data/igf2bp123.test.negative.fasta",
+             "IGF2BP123"),
+            ("data/srsf1.train.positive.fasta",
+             "data/srsf1.train.negative.fasta",
+             "data/srsf1.test.positive.fasta",
+             "data/srsf1.test.negative.fasta",
+             "SRSF1"),
+            ("data/taf2n.train.positive.fasta",
+             "data/taf2n.train.negative.fasta",
+             "data/taf2n.test.positive.fasta",
+             "data/taf2n.test.negative.fasta",
+             "TAF2N"),
+            ("data/nova.train.positive.fasta",
+             "data/nova.train.negative.fasta",
+             "data/nova.test.positive.fasta",
+             "data/nova.test.negative.fasta",
+             "NOVA")]
 
     for entry in RBPs:
         output_folder = entry[4] + "_pysster/"
@@ -32,7 +53,7 @@ def main():
 
         # load data
         data = Data([entry[0]+".struct.gz", entry[1]+".struct.gz"], ("ACGU", "HIMS"))
-        data.train_val_test_split(0.8, 0.1999, seed=42)
+        data.train_val_test_split(0.8, 0.1999) # we need to have at least one test sequence, even though we don't need it
         print(data.get_summary())
 
         # training

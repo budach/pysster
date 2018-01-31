@@ -17,18 +17,31 @@ import random
 
 random.seed(42)
 
-# download human genome
+# download genomes
 urlretrieve("ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/GRCh37.p13.genome.fa.gz", "grch37.fasta.gz")
 with gzip.open("grch37.fasta.gz", "rb") as f_in:
     with open("grch37.fasta", "wb") as f_out:
         shutil.copyfileobj(f_in, f_out)
 os.remove("grch37.fasta.gz")
+urlretrieve("ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M1/NCBIM37.genome.fa.gz", "mm9.fasta.gz")
+with gzip.open("mm9.fasta.gz", "rb") as f_in:
+    with open("mm9.fasta", "wb") as f_out:
+        shutil.copyfileobj(f_in, f_out)
+os.remove("mm9.fasta.gz")
 
 
 RBPs = [("https://github.molgen.mpg.de/raw/heller/ssHMM_data/master/clip-seq/fasta/PUM2/positive.fasta",
          "https://github.molgen.mpg.de/raw/heller/ssHMM_data/master/clip-seq/fasta/PUM2/negative_clip.fasta", "pum2"),
         ("https://github.molgen.mpg.de/raw/heller/ssHMM_data/master/clip-seq/fasta/QKI/positive.fasta",
-         "https://github.molgen.mpg.de/raw/heller/ssHMM_data/master/clip-seq/fasta/QKI/negative_clip.fasta", "qki")]
+         "https://github.molgen.mpg.de/raw/heller/ssHMM_data/master/clip-seq/fasta/QKI/negative_clip.fasta", "qki"),
+        ("https://github.molgen.mpg.de/raw/heller/ssHMM_data/master/clip-seq/fasta/IGF2BP123/positive.fasta",
+         "https://github.molgen.mpg.de/raw/heller/ssHMM_data/master/clip-seq/fasta/IGF2BP123/negative_clip.fasta", "igf2bp123"),
+        ("https://github.molgen.mpg.de/raw/heller/ssHMM_data/master/clip-seq/fasta/SFRS1/positive.fasta",
+         "https://github.molgen.mpg.de/raw/heller/ssHMM_data/master/clip-seq/fasta/SFRS1/negative_clip.fasta", "srsf1"),
+        ("https://github.molgen.mpg.de/raw/heller/ssHMM_data/master/clip-seq/fasta/TAF2N/positive.fasta",
+         "https://github.molgen.mpg.de/raw/heller/ssHMM_data/master/clip-seq/fasta/TAF2N/negative_clip.fasta", "taf2n"),
+        ("https://github.molgen.mpg.de/raw/heller/ssHMM_data/master/clip-seq/fasta/NOVA_HITSCLIP/positive.fasta",
+         "https://github.molgen.mpg.de/raw/heller/ssHMM_data/master/clip-seq/fasta/NOVA_HITSCLIP/negative_clip.fasta", "nova")]
 
 for entry in RBPs:
     # get the files
@@ -52,8 +65,12 @@ for entry in RBPs:
                 else:
                     strand = '-'
                 handle.write("{}\t{}\t{}\t.\t.\t{}\n".format(chrom, mid-100, mid+100, strand))
-        # get sequences based on the bed file
-        call("bedtools getfasta -s -fo {}.fasta -fi grch37.fasta -bed {}.bed".format(file_name, file_name), shell = True)
+    # get sequences based on the bed files
+    if entry[2] == "nova":
+        call("bedtools getfasta -s -fo positive.fasta -fi mm9.fasta -bed positive.bed", shell = True)
+    else:
+        call("bedtools getfasta -s -fo positive.fasta -fi grch37.fasta -bed positive.bed", shell = True)
+    call("bedtools getfasta -s -fo negative.fasta -fi grch37.fasta -bed negative.bed", shell = True)
     
     # randomly split into train and test, first positives...
     seqs = [rec for rec in SeqIO.parse("positive.fasta", "fasta")]
@@ -82,3 +99,5 @@ for entry in RBPs:
 # clean up
 os.remove("grch37.fasta")
 os.remove("grch37.fasta.fai")
+os.remove("mm9.fasta")
+os.remove("mm9.fasta.fai")
