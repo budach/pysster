@@ -13,7 +13,7 @@ from pysster.Alphabet_Encoder import Alphabet_Encoder
 
 class Data:
     """
-    The Data class provides a convenient way to handle bioligcal sequence and structure data for 
+    The Data class provides a convenient way to handle biological sequence and structure data for 
     multiple classes. Sequence and structure data are automatically converted into one-hot
     encoded matrices and split into training/validation/test sets. The data object can then
     be passed to Grid_Search or Model objects for easy training and evaluation.

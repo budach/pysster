@@ -1,6 +1,6 @@
 # Class Data - Documentation
 
-The Data class provides a convenient way to handle bioligcal sequence and structure data for multiple classes. Sequence and structure data are automatically converted into one-hot encoded matrices and split into training/validation/test sets. The data object can then be passed to Grid\_Search or Model objects for easy training and evaluation. 
+The Data class provides a convenient way to handle biological sequence and structure data for multiple classes. Sequence and structure data are automatically converted into one-hot encoded matrices and split into training/validation/test sets. The data object can then be passed to Grid\_Search or Model objects for easy training and evaluation. 
 
  Input format: Data objects accept raw strings in fasta format as input for sequence and structure data or optionally position-weight matrices for structure data (see \_\_init\_\_ function). Strings can contain all uppercase alphanumeric characters and the following special characters: "()[]{}<\>,.|". Additional handcrafted features may be added using the load\_additional\_data function.
 
