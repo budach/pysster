@@ -47,6 +47,7 @@ By the time of writing the most recent TensorFlow version is 1.4.0 and requires 
 **Tutorials**
 * [Example workflow](https://github.com/budach/pysster/blob/master/tutorials/workflow_rna_editing.ipynb) (data loading, model training via grid search, model evaluation + motif visualization showcased using an RNA editing data set)
 * [Visualization by optimization of all network layers](https://github.com/budach/pysster/blob/master/tutorials/visualize_all_the_things.ipynb) (an alternative visualization method showcased using an artifical data set)
+* [Limitations of Neural Networks](https://github.com/budach/pysster/blob/master/tutorials/limitations.md) (some critical thoughts on networks applied to sequence data)
 
 **API documentation**
 * [Data objects](https://github.com/budach/pysster/blob/master/docs/Data.md) (handling of input data)
