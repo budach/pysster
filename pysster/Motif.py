@@ -12,7 +12,7 @@ class Motif:
     The only functionality is the plot function. The PWM and corresponding entropy values
     can be accessed using the self.pwm and self.entropies members, if so desired. All uppercase
     alphanumeric characters and the following additional characters can be part of the
-    alphabet: "()[]{}<>,.|".
+    alphabet: "()[]{}<>,.|*".
     """
 
     def __init__(self, alphabet, sequences = None, pwm = None):

@@ -1,6 +1,6 @@
 # Class Motif - Documentation
 
-The Motif class is a convenience class to compute and plot a position-weight matrix (PWM). The only functionality is the plot function. The PWM and corresponding entropy values can be accessed using the self.pwm and self.entropies members, if so desired. All uppercase alphanumeric characters and the following additional characters can be part of the alphabet: "()[]{}<\>,.|".
+The Motif class is a convenience class to compute and plot a position-weight matrix (PWM). The only functionality is the plot function. The PWM and corresponding entropy values can be accessed using the self.pwm and self.entropies members, if so desired. All uppercase alphanumeric characters and the following additional characters can be part of the alphabet: "()[]{}<\>,.|*".
 
 ## Methods - Overview
 

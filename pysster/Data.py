@@ -20,7 +20,7 @@ class Data:
 
     Input format: Data objects accept raw strings in fasta format as input for sequence and structure
     data or optionally position-weight matrices for structure data (see __init__ function). Strings
-    can contain all uppercase alphanumeric characters and the following special characters: "()[]{}<>,.|".
+    can contain all uppercase alphanumeric characters and the following special characters: "()[]{}<>,.|*".
     Additional handcrafted features may be added using the load_additional_data function.
     """
 
@@ -49,7 +49,7 @@ class Data:
         provided alphabets will be randomly replaced with an alphabet character.
 
         We support all uppercase alphanumeric characters and the following additional characters
-        for alphabets: "()[]{}<>,.|". Thus, it is possible to use and combine (in the sequence-structure
+        for alphabets: "()[]{}<>,.|*". Thus, it is possible to use and combine (in the sequence-structure
         case) arbitrarily defined alphabets as long as the data is provided in the described fasta format,
         i.e. you are not restricted to only use this package for DNA/RNA.
 

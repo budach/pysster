@@ -2,7 +2,7 @@
 
 The Data class provides a convenient way to handle biological sequence and structure data for multiple classes. Sequence and structure data are automatically converted into one-hot encoded matrices and split into training/validation/test sets. The data object can then be passed to Grid\_Search or Model objects for easy training and evaluation. 
 
- Input format: Data objects accept raw strings in fasta format as input for sequence and structure data or optionally position-weight matrices for structure data (see \_\_init\_\_ function). Strings can contain all uppercase alphanumeric characters and the following special characters: "()[]{}<\>,.|". Additional handcrafted features may be added using the load\_additional\_data function.
+ Input format: Data objects accept raw strings in fasta format as input for sequence and structure data or optionally position-weight matrices for structure data (see \_\_init\_\_ function). Strings can contain all uppercase alphanumeric characters and the following special characters: "()[]{}<\>,.|*". Additional handcrafted features may be added using the load\_additional\_data function.
 
 ## Methods - Overview
 
@@ -33,7 +33,7 @@ Load the sequences and split the data into 70%/15%/15% training/validation/test.
 
  The provided alphabet must match the content of the fasta files. For sequence-only files a single string (e.g. 'ACGT' or 'ACGU') should be provided and for sequence-structure files a tuple should be provided (e.g. ('ACGU', '().')). Characters that are not part of the provided alphabets will be randomly replaced with an alphabet character. 
 
- We support all uppercase alphanumeric characters and the following additional characters for alphabets: "()[]{}<\>,.|". Thus, it is possible to use and combine (in the sequence-structure case) arbitrarily defined alphabets as long as the data is provided in the described fasta format, i.e. you are not restricted to only use this package for DNA/RNA. 
+ We support all uppercase alphanumeric characters and the following additional characters for alphabets: "()[]{}<\>,.|*". Thus, it is possible to use and combine (in the sequence-structure case) arbitrarily defined alphabets as long as the data is provided in the described fasta format, i.e. you are not restricted to only use this package for DNA/RNA. 
 
  If you don't want to work with a single minimum free energy structure (as some RNA structure prediction tools can output multiple predictions) you can also provide a position-weight matrix representing the structure instead of a single string (matrix entries must be separated by a space or tab): 
 
