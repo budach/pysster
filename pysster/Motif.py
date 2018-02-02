@@ -136,6 +136,8 @@ class Motif:
                 img_chars[char] = Image.open("{}/resources/motif/char_except1.png".format(folder))
             elif char == '>':
                 img_chars[char] = Image.open("{}/resources/motif/char_except2.png".format(folder))
+            elif char == '*':
+                img_chars[char] = Image.open("{}/resources/motif/char_except3.png".format(folder))
             else:
                 img_chars[char] = Image.open("{}/resources/motif/char{}.png".format(folder, char))
             # change the color if needed
