@@ -33,7 +33,7 @@ Load the sequences and split the data into 70%/15%/15% training/validation/test.
 
  The provided alphabet must match the content of the fasta files. For sequence-only files a single string (e.g. 'ACGT' or 'ACGU') should be provided and for sequence-structure files a tuple should be provided (e.g. ('ACGU', '().')). Characters that are not part of the provided alphabets will be randomly replaced with an alphabet character. 
 
- We support all uppercase alphanumeric characters and the following additional characters for alphabets: "()[]{}<\>,.|*". Thus, it is possible to use and combine (in the sequence-structure case) arbitrarily defined alphabets as long as the data is provided in the described fasta format, i.e. you are not restricted to only use this package for DNA/RNA. 
+ We support all uppercase alphanumeric characters and the following additional characters for alphabets: "()[]{}<\>,.|*". Thus, it is possible to use and combine (in the sequence-structure case) arbitrarily defined alphabets as long as the data is provided in the described fasta format. In particular, this means the usage of the package is not restricted to RNA secondary structure. If you have structure information for DNA or protein data that can be encoded by some alphabet, similar to RNA structure information, you can apply the package to this kind of data as well. 
 
  If you don't want to work with a single minimum free energy structure (as some RNA structure prediction tools can output multiple predictions) you can also provide a position-weight matrix representing the structure instead of a single string (matrix entries must be separated by a space or tab): 
 
@@ -44,7 +44,7 @@ Load the sequences and split the data into 70%/15%/15% training/validation/test.
   0.1 0.2 0.3 0.1 1.0 1.0 0.8 0.3 0.2 0.1  
  
 
- If you provide "()." as the alphabet the first line of the matrix given above will correspond to "(", the second to ")" and the third to ".". Each column of the matrix must add up to 1. Again, we don't restrict the usage of the package to DNA/RNA, therefore the matrix given above can represent whatever you want it to represent, as long as you provide a valid alphabet. 
+ If you provide "()." as the alphabet the first line of the matrix given above will correspond to "(", the second to ")" and the third to ".". Each column of the matrix must add up to 1. Again, we don't restrict the usage of the package to RNA, therefore the matrix given above can represent whatever you want it to represent, as long as you provide a valid alphabet. 
 
 
 
