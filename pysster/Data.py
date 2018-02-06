@@ -51,9 +51,10 @@ class Data:
         We support all uppercase alphanumeric characters and the following additional characters
         for alphabets: "()[]{}<>,.|*". Thus, it is possible to use and combine (in the sequence-structure
         case) arbitrarily defined alphabets as long as the data is provided in the described fasta format.
-        In particular, this means the usage of the package is not restricted to RNA secondary structure.
-        If you have structure information for DNA or protein data that can be encoded by some alphabet,
-        similar to RNA structure information, you can apply the package to this kind of data as well.
+        In particular, this means the usage of the package is not restricted to RNA secondary
+        structure (this is only an example). If you have structure information for DNA or protein data
+        that can be encoded by some alphabet, similar to RNA structure information, you can apply
+        the package to this kind of data as well.
 
         If you don't want to work with a single minimum free energy structure (as some RNA structure
         prediction tools can output multiple predictions) you can also provide a position-weight
