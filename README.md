@@ -6,7 +6,7 @@ pysster is a Python package for training and interpretation of convolutional neu
 * multi-class and single-label or multi-label classifications
 * sensible default parameters and an optional hyper-parameter tuning
 * learning of motifs + interpretation in terms of positional and class enrichment and motif co-occurrence
-* support of input strings over user-defined alphabets (e.g. applicable to DNA, RNA, proteins, etc.)
+* support of input strings over user-defined alphabets (e.g. applicable to DNA, RNA, protein data)
 * optional use of structure information, handcrafted features and recurrent layers
 * seamless CPU or GPU computation
 
@@ -39,7 +39,7 @@ pip3 uninstall tensorflow
 pip3 install tensorflow-gpu
 ```
 
-By the time of writing the most recent TensorFlow version is 1.4.0 and requires CUDA 8 and cuDNN 6. You can always check the required versions in the TensorFlow [release notes](https://github.com/tensorflow/tensorflow/releases).
+By the time of writing the most recent TensorFlow version is 1.5 and requires CUDA 9 and cuDNN 7. You can always check the required versions in the TensorFlow [release notes](https://github.com/tensorflow/tensorflow/releases).
 
 
 ### Documentation
