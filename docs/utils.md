@@ -137,7 +137,7 @@ Predict secondary structures for RNA sequences.
 | input_file | str | A fasta file with RNA sequences. |
 | output_file | str | A fasta file with sequences and structures. |
 | num_processes | int | The number of parallel processes to use for prediction. (default: number of available cores) |
-| annotate | bool | Output the annotated structure string in addition to the dot-bracket string. (default: false) |
+| annotate | bool | Output the annotated structure string instead of the dot-bracket string. (default: false) |
 ## get\_performance\_report
 
 ``` python
