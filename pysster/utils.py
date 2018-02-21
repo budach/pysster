@@ -208,12 +208,12 @@ def predict_structures(input_file, output_file, num_processes=None, annotate=Fal
         if annotate:
             data = pool.starmap(func = _predict_and_annotate, 
                                 iterable = zip(parse_fasta(handle), repeat(predictor)),
-                                chunksize = 50)
+                                chunksize = 2)
             formatter = ">{}\n{}\n{}\n"
         else:
-            data = pool.map(func = predictor,
-                            iterable = parse_fasta(handle),
-                            chunksize = 50)
+            data = list(pool.imap(func = predictor,
+                                  iterable = parse_fasta(handle),
+                                  chunksize = 2))
             formatter = ">{}\n{}\n{} ({})\n"
     handle.close()
     handle = get_handle(output_file, "wt")
