@@ -192,7 +192,7 @@ def predict_structures(input_file, output_file, num_processes=None, annotate=Fal
         The number of parallel processes to use for prediction. (default: number of available cores)
     
     annotate : bool
-        Also output the annotated structure string in addition to the dot-bracket string. (default: false)
+        Output the annotated structure string in addition to the dot-bracket string. (default: false)
     """
     try:
         from RNA import fold
