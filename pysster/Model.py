@@ -265,9 +265,9 @@ class Model:
         subsequences from the top class are used to construct the motif (up to 500 subsequences).
 
         The histograms show the positions of the maximum activation, i.e. the positions the
-        subsequences were extracted from. The mean activation plots show the mean activation
-        for all sequence positions. Both plots are only based on sequences that led to a maximum
-        activation higher than the threshold. Histogram and mean activation plot are usually
+        subsequences were extracted from. The activation plots show the mean activation and standard
+        deviation for all sequence positions. Both plots are only based on sequences that led to a
+        maximum activation higher than the threshold. Histogram and mean activation plot are usually
         identical, but in case the histogram is very sparse the mean activation plot might
         be easier to look at.
 
@@ -335,7 +335,7 @@ class Model:
             idx_class = np.in1d(idx_above_thresh, idx_class_seq)
             if idx_class.sum() > 0:
                 histograms.append(np.argmax(acts[idx_class], axis=1))
-                mean_acts.append(np.mean(acts[idx_class], axis=0))
+                mean_acts.append( (np.mean(acts[idx_class], axis=0), np.std(acts[idx_class], axis=0)) )
             else:
                 histograms.append([])
                 mean_acts.append([])

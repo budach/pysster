@@ -498,8 +498,8 @@ def plot_motif_summary(position_max, mean_acts, kernel, file_path):
         else:
             classes.append(i)
             ylim_hist = max(ylim_hist, Counter(hist).most_common(1)[0][1])
-            ylim_mean = max(ylim_mean, max(mean_acts[i]))
-    xlim = len(mean_acts[classes[0]]) + 1
+            ylim_mean = max(ylim_mean, max(mean_acts[i][0] + mean_acts[i][1]))
+    xlim = len(mean_acts[classes[0]][0]) + 1
     matplotlib.rcParams.update({'font.size': 30})
     files = []
     n_per_plot = 3
@@ -524,11 +524,15 @@ def plot_motif_summary(position_max, mean_acts, kernel, file_path):
             ))
             _hide_top_right(ax.flat[class_num])
             # mean activations
+            ax.flat[class_num + classes_this_plot].fill_between(list(range(1, xlim)),
+                                                                mean_acts[classes[class_idx]][0] - mean_acts[classes[class_idx]][1],
+                                                                mean_acts[classes[class_idx]][0] + mean_acts[classes[class_idx]][1],
+                                                                alpha = 0.1)
             ax.flat[class_num + classes_this_plot].plot(list(range(1, xlim)),
-                                                        mean_acts[classes[class_idx]],
+                                                        mean_acts[classes[class_idx]][0],
                                                         linewidth = 5.0)
             ax.flat[class_num + classes_this_plot].set_xlabel("sequence position")
-            ax.flat[class_num + classes_this_plot].set_ylabel("mean activation")
+            ax.flat[class_num + classes_this_plot].set_ylabel("activation")
             ax.flat[class_num + classes_this_plot].set_ylim((0, ylim_mean))
             _hide_top_right(ax.flat[class_num + classes_this_plot])
         plt.tight_layout()
