@@ -334,7 +334,8 @@ class Model:
             # histogram and mean activations
             idx_class = np.in1d(idx_above_thresh, idx_class_seq)
             if idx_class.sum() > 0:
-                histograms.append(np.argmax(acts[idx_class], axis=1))
+                # histograms.append(np.argmax(acts[idx_class], axis=1))
+                histograms.append(utils.randargmax(acts[idx_class]))
                 mean_acts.append( (np.mean(acts[idx_class], axis=0), np.std(acts[idx_class], axis=0)) )
             else:
                 histograms.append([])
@@ -356,7 +357,6 @@ class Model:
         utils.plot_motif_summary(histograms, mean_acts, kernel, "{}position_kernel_{}.png".format(folder, kernel))
         utils.plot_violins(max_per_class, kernel, "{}activations_kernel_{}.png".format(folder, kernel))
         return logo, max(mean_max) - min(mean_max)
-
 
 
     def plot_clustering(self, activations, output_file, classes = None):
@@ -397,7 +397,6 @@ class Model:
             utils._plot_heatmap(output_file,
                                       activations['activations'][select,:],
                                       np.argmax(labels[select,:], axis=1), classes)
-
 
 
 
@@ -469,7 +468,6 @@ class Model:
             motif_plots += self._get_optimized_input(model, data, layer_name, node, bound, 
                                                      lr, steps, colors_sequence, colors_structure)
         utils.combine_images(motif_plots, output_file)
-
 
 
     def _check_params(self):

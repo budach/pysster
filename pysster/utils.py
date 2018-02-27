@@ -240,7 +240,7 @@ def _predict_and_annotate(fasta_entry, predict_function):
 
 
 def auROC(labels, predictions):
-    fpr, tpr, thresholds = roc_curve(labels, predictions)
+    fpr, tpr, _ = roc_curve(labels, predictions)
     return fpr, tpr, auc(fpr, tpr)
 
 
@@ -470,15 +470,6 @@ def softmax(x):
     x = np.exp(x - np.max(x))
     return x / x.sum(axis = 0)
 
-def randargmax(x):
-    vals = x.max(axis=1)
-    results = np.zeros(x.shape[0], dtype=np.uint64)
-    for i, val in enumerate(vals):
-        results[i] = np.random.choice(np.where(np.isclose(x[i,:], val))[0])
-    return results
-
-
-
 
 def _hide_top_right(ax):
     ax.spines['right'].set_visible(False)
@@ -651,3 +642,15 @@ def combine_images(images, output_file):
     new_im.save(output_file)
     new_im.close()
     plt.close('all')
+
+
+# helper function; np.argmax always returns the first occurrence of the max value
+# even if it occurs multiple times; this function randomly selects one of those instead
+def randargmax(data):
+   rtol, atol = 1e-09, 0.0
+   result = np.empty((data.shape[0],), dtype=np.uint32)
+   max_val = np.max(data, axis=1)
+   for x in range(data.shape[0]):
+       result[x] = np.random.choice(
+           np.where(abs(data[x, ] - max_val[x]) <= np.maximum(rtol * np.maximum(abs(data[x, ]), abs(max_val[x])), atol))[0])
+   return result
