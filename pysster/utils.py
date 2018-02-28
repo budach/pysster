@@ -647,10 +647,10 @@ def combine_images(images, output_file):
 # helper function; np.argmax always returns the first occurrence of the max value
 # even if it occurs multiple times; this function randomly selects one of those instead
 def randargmax(data):
-   rtol, atol = 1e-09, 0.0
-   result = np.empty((data.shape[0],), dtype=np.uint32)
-   max_val = np.max(data, axis=1)
-   for x in range(data.shape[0]):
-       result[x] = np.random.choice(
-           np.where(abs(data[x, ] - max_val[x]) <= np.maximum(rtol * np.maximum(abs(data[x, ]), abs(max_val[x])), atol))[0])
-   return result
+    rtol, atol = 1e-09, 0.0
+    result = np.empty((data.shape[0],), dtype=np.uint32)
+    max_val = np.max(data, axis=1)
+    for x in range(data.shape[0]):
+        result[x] = np.random.choice(
+            np.where(abs(data[x, ] - max_val[x]) <= np.maximum(rtol * np.maximum(abs(data[x, ]), abs(max_val[x])), atol))[0])
+    return result
