@@ -3,7 +3,7 @@ from os import remove
 from tempfile import gettempdir
 from itertools import product
 from keras import backend as K
-from copy import deepccopy
+from copy import deepcopy
 import string
 import random
 
