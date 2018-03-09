@@ -501,7 +501,7 @@ def plot_motif_summary(position_max, mean_acts, kernel, file_path):
         fig, ax = plt.subplots(nrows = 2, 
                                ncols = classes_this_plot,
                                figsize = (19*classes_this_plot, 12))
-        for class_num in range(classes_left):
+        for class_num in range(classes_this_plot):
             class_idx += 1
             # histograms
             ax.flat[class_num].hist(position_max[classes[class_idx]], 
@@ -653,3 +653,22 @@ def randargmax(data):
         result[x] = np.random.choice(
             np.where(abs(data[x, ] - max_val[x]) <= np.maximum(rtol * np.maximum(abs(data[x, ]), abs(max_val[x])), atol))[0])
     return result
+
+
+def html_report(sorted_idx, scores, folder, class_num):
+    handle = open(folder+"summary.html", "wt")
+    handle.write('<!doctype html>\n<html>\n<head>\n<meta charset="UTF-8">\n')
+    handle.write('<title>Kernel Summary</title>\n<style media="screen" type="text/css">\n')
+    handle.write('#report {white-space: nowrap;}\n')
+    handle.write('td {text-align: center; font-weight: bold; padding: 20px;}\n')
+    handle.write('table {margin: 0 auto; border-collapse: collapse;}\n')
+    handle.write('tr:nth-child(even) {background-color: #f2f9ff;}</style>\n</head>\n')
+    handle.write('<body>\n<div id="report">\n<table>\n')
+    for kernel in sorted_idx:
+        handle.write('<tr>\n<td>Kernel {}<br/>score = {:.3f}</td>\n'.format(kernel, scores[kernel]))
+        handle.write('<td><img src="motif_kernel_{}.png" height=150/></td>\n'.format(kernel))
+        handle.write('<td><img src="activations_kernel_{}.png" height=300/></td>\n'.format(kernel))
+        handle.write('<td><img src="position_kernel_{}.png" height={}/></td>\n</tr>\n'.format(
+            kernel, 300 * max(ceil(class_num/3), 1)))
+    handle.write('</table>\n</div>\n</body>\n</html>')
+    handle.close()

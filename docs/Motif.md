@@ -31,7 +31,7 @@ def plot(self, colors={}, scale=1)
 ```
 Plot the motif. 
 
- The default height of the plot is 754 pixel. The width depends on the length of the motif. Using, for instance, a scale parameter of 0.5 halves both height and width. The color of individual letters can be defined via the colors dict using RGB values, e.g. {'A': '#FF0000', 'C': '#0000FF'} will result in red A's and blue C's. Non-defined characters will be plotted black. 
+ The color of individual letters can be defined via the colors dict using RGB values, e.g. {'A': '#FF0000', 'C': '#0000FF'} will result in red A's and blue C's. Non-defined characters will be plotted black. 
 
  The alphabets 'ACGT', 'ACGU', and 'HIMS' have predefined colors (that can be overwritten): 
 
@@ -39,6 +39,8 @@ Plot the motif.
   "ACGU" -\> {'A': '#00CC00', 'C': '#0000CC', 'G': '#FFB300', 'U': '#CC0000'}  
   "HIMS" -\> {'H': '#CC0000', 'I': '#FFB300', 'M': '#00CC00', 'S': '#CC00FF'}  
  
+
+ Using, for instance, a scale parameter of 0.5 halves both height and width of the plot. 
 
 
 

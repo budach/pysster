@@ -304,7 +304,7 @@ class Model:
         
         Returns
         -------
-        results: tuple(pysster.Motif, float) or tuple((tuple(pysster.Motif, pysster.Motif), float)
+        results: (pysster.Motif, float) or ((pysster.Motif, pysster.Motif), float)
             A Motif object (or a tuple of Motifs for sequence/structure motifs) and the importance score.
         """
         if not self.model.layers[2].name.startswith("conv1d"):
@@ -357,6 +357,55 @@ class Model:
         utils.plot_motif_summary(histograms, mean_acts, kernel, "{}position_kernel_{}.png".format(folder, kernel))
         utils.plot_violins(max_per_class, kernel, "{}activations_kernel_{}.png".format(folder, kernel))
         return logo, max(mean_max) - min(mean_max)
+
+
+    def visualize_all_kernels(self, activations, data, folder, colors_sequence={}, colors_structure={}):
+        """ Get visualizations for all first-layer convolutional kernels.
+
+        This functions creates the same three output files as visualize_kernel() (see there for details),
+        but for all kernels of the first convolutional layer. It also creates a "summary.html" file
+        showing all plots for each kernel side-by-side. Kernels are sorted by the global importance score.
+
+        The function returns a list holding Motif objects for each kernel (similar to
+        visualize_kernel()). This list is not sorted by importance score (i.e. kernel 0 comes first)
+
+        Parameters
+        ----------
+        activations : dict
+            The return value of the get_max_activations function.
+        
+        data: pysster.Data 
+            The Data object that was used to compute the maximum activations.
+        
+        folder: str
+            A valid folder path. Plots and HTML summary will be saved here.
+        
+        colors_sequence : dict of char->str
+            A dict with individual alphabet characters as keys and hexadecimal RGB specifiers as values. (see Motif object documentation for details).
+        
+        colors_structure : dict of char->str
+            A dict with individual alphabet characters as keys and hexadecimal RGB specifiers as values. (see Motif object documentation for details).
+        
+        Returns
+        -------
+        results: [pysster.Motif] or [(pysster.Motif, pysster.Motif)]
+            A list of Motif objects (or a list of tuples of Motifs for sequence/structure cases).
+        """
+        if folder[-1] != "/":
+            folder += "/"
+        # create plots for each kernel
+        logos, scores = [], []
+        for kernel in range(self.params["kernel_num"]):
+            logo, score = self.visualize_kernel(activations, data, kernel, folder,
+                                                colors_sequence, colors_structure)
+            logos.append(logo)
+            scores.append(score)
+        # sort kernels by importance score (highest score first)
+        sorted_idx = [i[0] for i in sorted(enumerate(scores), key=lambda x:x[1], reverse=True)]
+        # create html summary showing all individual kernel plots side-by-side sorted by score
+        utils.html_report(sorted_idx, scores, folder, self.params["class_num"])
+        # return list with motif objects (not sorted by score, kernel 0 comes first)
+        return logos
 
 
     def plot_clustering(self, activations, output_file, classes = None):

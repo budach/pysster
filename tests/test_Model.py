@@ -74,6 +74,7 @@ class Test_Model(unittest.TestCase):
     def test_model_visualize_kernel(self):
         acts = self.m1.get_max_activations(self.data, 'all')
         folder = gettempdir() + '/'
+        # individual kernels
         for kernel in range(self.params['kernel_num']):
             motif, score = self.m1.visualize_kernel(acts, self.data, kernel, folder)
             self.assertTrue(isfile(folder+"motif_kernel_{}.png".format(kernel)))
@@ -85,7 +86,22 @@ class Test_Model(unittest.TestCase):
             self.assertTrue(isinstance(motif, tuple))
             self.assertTrue(isinstance(motif[0], Motif))
             self.assertTrue(np.isclose(score, 0) or score > 0)
-    
+        # all kernels
+        motifs = self.m1.visualize_all_kernels(acts, self.data, folder)
+        self.assertTrue(len(motifs) == 3)
+        for x in range(3):
+            self.assertTrue(isinstance(motifs[x], tuple))
+            self.assertTrue(isinstance(motifs[x][0], Motif))
+        for kernel in range(self.params['kernel_num']):
+            self.assertTrue(isfile(folder+"motif_kernel_{}.png".format(kernel)))
+            self.assertTrue(isfile(folder+"position_kernel_{}.png".format(kernel)))
+            self.assertTrue(isfile(folder+"activations_kernel_{}.png".format(kernel)))
+            remove(folder+"motif_kernel_{}.png".format(kernel))
+            remove(folder+"position_kernel_{}.png".format(kernel))
+            remove(folder+"activations_kernel_{}.png".format(kernel))
+        self.assertTrue(isfile(folder+"summary.html"))
+        remove(folder+"summary.html")
+
 
     def test_model_plot_clustering(self):
         acts = self.m1.get_max_activations(self.data, 'test')

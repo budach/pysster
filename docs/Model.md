@@ -54,6 +54,7 @@ The Model class represents a convolutional neural network and provides functions
 | predict | Get model predictions for a subset of a Data object. |
 | get\_max\_activations | Get the network output of the first convolutional layer. |
 | visualize\_kernel | Get a number of visualizations and an importane score for a convolutional kernel. |
+| visualize\_all\_kernels | Get visualizations for all first-layer convolutional kernels. |
 | plot\_clustering | Perform a hierarchical clustering on both sequences and kernels. |
 | visualize\_optimized\_inputs | Visualize what every node in the network has learned. |
 ## \_\_init\_\_
@@ -166,7 +167,31 @@ Get a number of visualizations and an importane score for a convolutional kernel
 
 | returns | type | description |
 |:-|:-|:-|
-| results | tuple(pysster.Motif, float) or tuple((tuple(pysster.Motif, pysster.Motif), float) | A Motif object (or a tuple of Motifs for sequence/structure motifs) and the importance score. |
+| results | (pysster.Motif, float) or ((pysster.Motif, pysster.Motif), float) | A Motif object (or a tuple of Motifs for sequence/structure motifs) and the importance score. |
+## visualize\_all\_kernels
+
+``` python
+def visualize_all_kernels(self, activations, data, folder, colors_sequence={}, colors_structure={})
+```
+Get visualizations for all first-layer convolutional kernels. 
+
+ This functions creates the same three output files as visualize\_kernel() (see there for details), but for all kernels of the first convolutional layer. It also creates a "summary.html" file showing all plots for each kernel side-by-side. Kernels are sorted by the global importance score. 
+
+ The function returns a list holding Motif objects for each kernel (similar to visualize\_kernel()). This list is not sorted by importance score (i.e. kernel 0 comes first) 
+
+
+
+| parameter | type | description |
+|:-|:-|:-|
+| activations | dict | The return value of the get_max_activations function. |
+| data | pysster.Data | The Data object that was used to compute the maximum activations. |
+| folder | str | A valid folder path. Plots and HTML summary will be saved here. |
+| colors_sequence | dict of char->str | A dict with individual alphabet characters as keys and hexadecimal RGB specifiers as values. (see Motif object documentation for details). |
+| colors_structure | dict of char->str | A dict with individual alphabet characters as keys and hexadecimal RGB specifiers as values. (see Motif object documentation for details). |
+
+| returns | type | description |
+|:-|:-|:-|
+| results | [pysster.Motif] or [(pysster.Motif, pysster.Motif)] | A list of Motif objects (or a list of tuples of Motifs for sequence/structure cases). |
 ## plot\_clustering
 
 ``` python
