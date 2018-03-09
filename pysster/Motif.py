@@ -3,7 +3,7 @@ from os.path import dirname
 from collections import Counter
 from copy import deepcopy
 from math import log
-from PIL import Image, ImageDraw, ImageFont, ImageChops
+from PIL import Image, ImageDraw, ImageFont, ImageChops, ImageColor
 
 
 class Motif:
@@ -70,19 +70,19 @@ class Motif:
         The default height of the plot is 754 pixel. The width depends on the length
         of the motif. Using, for instance, a scale parameter of 0.5 halves both height and width.
         The color of individual letters can be defined via the colors dict using RGB values, e.g.
-        {'A':(255,0,0), 'C':(0,0,255)} will result in red A's and blue C's. Non-defined characters
+        {'A': '#FF0000', 'C': '#0000FF'} will result in red A's and blue C's. Non-defined characters
         will be plotted black.
 
         The alphabets 'ACGT', 'ACGU', and 'HIMS' have predefined colors (that can be overwritten):
         
-        '"ACGT" -> {'A':(212,0,0), 'C':(0,102,128), 'G':(255,204,0), 'T':(0,170,0)}
-        '"ACGU" -> {'A':(212,0,0), 'C':(0,102,128), 'G':(255,204,0), 'U':(0,170,0)}
-        '"HIMS" -> {'H':(212,0,0), 'I':(255,204,0), 'M':(68,170,0), 'S':(204,0,255)}
+        '"ACGT" -> {'A': '#00CC00', 'C': '#0000CC', 'G': '#FFB300', 'T': '#CC0000'}
+        '"ACGU" -> {'A': '#00CC00', 'C': '#0000CC', 'G': '#FFB300', 'U': '#CC0000'}
+        '"HIMS" -> {'H': '#CC0000', 'I': '#FFB300', 'M': '#00CC00', 'S': '#CC00FF'}
 
         Parameters
         ----------
-        colors : dict of char->(int, int, int)
-            A dict with individual alphabet characters as keys and RGB tuples as values.
+        colors : dict of char->str
+            A dict with individual alphabet characters as keys and hexadecimal RGB specifiers as values.
         
         scale : float
             Adjust the size of the plot (should be > 0).
@@ -97,11 +97,16 @@ class Motif:
         self.colors = colors
         if self.colors == {}:
             if self.alphabet == 'ACGT':
-                self.colors = {'A':(212,0,0), 'C':(0,102,128), 'G':(255,204,0), 'T':(0,170,0)}
+                self.colors = {'A': '#00CC00', 'C': '#0000CC', 'G': '#FFB300', 'T': '#CC0000'}
             elif self.alphabet == 'ACGU':
-                self.colors = {'A':(212,0,0), 'C':(0,102,128), 'G':(255,204,0), 'U':(0,170,0)}
+                self.colors = {'A': '#00CC00', 'C': '#0000CC', 'G': '#FFB300', 'U': '#CC0000'}
             elif self.alphabet == 'HIMS':
-                self.colors = {'H':(212,0,0), 'I':(255,204,0), 'M':(68,170,0), 'S':(204,0,255)}
+                self.colors = {'H': '#CC0000', 'I': '#FFB300', 'M': '#00CC00', 'S': '#CC00FF'}
+        # translate hex to decimal
+        for char in self.colors:
+            if len(self.colors[char]) != 7 or not self.colors[char].startswith("#"):
+                raise RuntimeError("Error: '{}' is not a valid color specifier.".format(self.colors[char]))
+            self.colors[char] = ImageColor.getrgb(self.colors[char])
         # cache all alphabet character images
         img_chars = self._load_characters()
         # prepapre image dimensions

@@ -161,8 +161,8 @@ Get a number of visualizations and an importane score for a convolutional kernel
 | data | pysster.Data | The Data object that was used to compute the maximum activations. |
 | kernel | int | The kernel that should be visualized (first kernel is 0) |
 | folder | str | A valid folder path. Plots will be saved here. |
-| colors_sequence | dict of char->(int, int, int) | A dict with individual sequence alphabet chars as keys and RGB tuples as values (see Motif object documentation for details). |
-| colors_structure | dict of char->(int, int, int) | A dict with individual structure alphabet chars as keys and RGB tuples as values (see Motif object documentation for details). |
+| colors_sequence | dict of char->str | A dict with individual alphabet characters as keys and hexadecimal RGB specifiers as values. (see Motif object documentation for details). |
+| colors_structure | dict of char->str | A dict with individual alphabet characters as keys and hexadecimal RGB specifiers as values. (see Motif object documentation for details). |
 
 | returns | type | description |
 |:-|:-|:-|
@@ -208,6 +208,6 @@ Visualize what every node in the network has learned.
 | bound | float | A float > 0. The PWM will be initialized by drawing from a uniform distribution with lower and upper bounds - and + bound. |
 | lr | float | A float > 0. Learning rate of the gradient ascent optimization. |
 | steps | int | An int > 0. Number of optimization iterations. |
-| colors_sequence | dict of char->(int, int, int) | A dict with individual sequence alphabet chars as keys and RGB tuples as values (see Motif object documentation for details). |
-| colors_structure | dict of char->(int, int, int) | A dict with individual structure alphabet chars as keys and RGB tuples as values (see Motif object documentation for details). |
+| colors_sequence | dict of char->str | A dict with individual alphabet characters as keys and hexadecimal RGB specifiers as values. (see Motif object documentation for details). |
+| colors_structure | dict of char->str | A dict with individual alphabet characters as keys and hexadecimal RGB specifiers as values. (see Motif object documentation for details). |
 | nodes | [int] | List of integers indicating which nodes of the layer should be optimized (default: all). |

@@ -454,8 +454,7 @@ def run_tomtom(motif_file, output_folder, database, options = None):
         Command line options passed to TomTom.
     """
     if which("tomtom") == None:
-        print("Warning: tomtom executable not found.")
-        return -1
+        raise RuntimeError("Error: tomtom executable not found.")
     if output_folder[-1] != "/":
         output_folder += "/"
     if not os.path.isdir(output_folder):  

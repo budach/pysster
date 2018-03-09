@@ -296,11 +296,11 @@ class Model:
         folder: str
             A valid folder path. Plots will be saved here.
         
-        colors_sequence : dict of char->(int, int, int)
-            A dict with individual sequence alphabet chars as keys and RGB tuples as values (see Motif object documentation for details).
+        colors_sequence : dict of char->str
+            A dict with individual alphabet characters as keys and hexadecimal RGB specifiers as values. (see Motif object documentation for details).
         
-        colors_structure : dict of char->(int, int, int)
-            A dict with individual structure alphabet chars as keys and RGB tuples as values (see Motif object documentation for details).
+        colors_structure : dict of char->str
+            A dict with individual alphabet characters as keys and hexadecimal RGB specifiers as values. (see Motif object documentation for details).
         
         Returns
         -------
@@ -445,11 +445,11 @@ class Model:
         steps : int
             An int > 0. Number of optimization iterations.
         
-        colors_sequence : dict of char->(int, int, int)
-            A dict with individual sequence alphabet chars as keys and RGB tuples as values (see Motif object documentation for details).
+        colors_sequence : dict of char->str
+            A dict with individual alphabet characters as keys and hexadecimal RGB specifiers as values. (see Motif object documentation for details).
         
-        colors_structure : dict of char->(int, int, int)
-            A dict with individual structure alphabet chars as keys and RGB tuples as values (see Motif object documentation for details).
+        colors_structure : dict of char->str
+            A dict with individual alphabet characters as keys and hexadecimal RGB specifiers as values. (see Motif object documentation for details).
         
         nodes : [int]
             List of integers indicating which nodes of the layer should be optimized (default: all).
