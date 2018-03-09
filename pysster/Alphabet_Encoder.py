@@ -8,7 +8,7 @@ class Alphabet_Encoder:
     def __init__(self, alph0, alph1):
         self._encodeTable = {tup: chr(i+65) for i, tup in enumerate(product(alph0, alph1))}
         self._decodeTable = {val: key for key, val in self._encodeTable.items()}
-        self.alphabet = "".join(self._decodeTable.keys())
+        self.alphabet = "".join(sorted(self._decodeTable.keys()))
         self.alph0 = alph0
         self.alph1 = alph1
 
