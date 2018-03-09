@@ -3,6 +3,7 @@ from os import remove
 from tempfile import gettempdir
 from itertools import product
 from keras import backend as K
+from copy import deepccopy
 import string
 import random
 
@@ -36,7 +37,7 @@ class Grid_Search:
         for x in params:
             if not isinstance(params[x], list) or params[x] == []:
                 raise RuntimeError("All params entries must be non-empty lists.")
-        self.params = params
+        self.params = deepcopy(params)
         self.candidates = [dict(zip(params.keys(), x)) for x in product(*params.values())]
 
 
