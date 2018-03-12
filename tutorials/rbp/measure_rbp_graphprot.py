@@ -3,7 +3,7 @@ import numpy as np
 from subprocess import call
 from sklearn.metrics import roc_curve, auc, precision_recall_curve, average_precision_score
 from time import time
-from pysster.Motif import Motif
+from pysster import Motif
 
 
 def get_performance():
@@ -33,7 +33,7 @@ def plot_nicer_motifs():
     with open("GraphProt.structure_motif", "rt") as handle:
         for line in handle:
             seqs.append(line.strip())
-    colors = {'H':(212,0,0), 'I':(255,204,0), 'M':(68,170,0), 'S':(204,0,255)}
+    colors = {'H': '#CC0000', 'I': '#FFB300', 'M': '#00CC00', 'S': '#CC00FF'}
     Motif("HIMSE", seqs).plot(colors).save("motif_structure.png")
 
 
