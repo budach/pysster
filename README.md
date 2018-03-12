@@ -10,7 +10,7 @@ pysster is a Python package for training and interpretation of convolutional neu
 * optional use of structure information, handcrafted features and recurrent layers
 * seamless CPU or GPU computation
 
-The preprint can be found on [bioRxiv](https://www.biorxiv.org/content/early/2017/12/06/230086).
+The preprint can be found on [bioRxiv](https://www.biorxiv.org/content/early/2018/02/06/230086).
 
 If you run into bugs, missing documentation or if you have a feature request, feel free to open an issue.
 
@@ -55,3 +55,11 @@ By the time of writing the most recent TensorFlow version is 1.5 and requires CU
 * [Grid_Search objects](https://github.com/budach/pysster/blob/master/docs/Grid_Search.md) (hyperparameter tuning)
 * [Motif objects](https://github.com/budach/pysster/blob/master/docs/Motif.md) (motif representation of a PWM)
 * [utils functions](https://github.com/budach/pysster/blob/master/docs/utils.md) (save/load Data/Model objects, predict/annotate secondary structures, further processing, etc.)
+
+
+### Changelog
+
+**v1.1.2 - 12. March 2018**
+* changed default color scheme for ACGT and ACGU alphabets to match conventions
+* added visualize_all_kernels() method to Model objects (vizualize all kernels at once + get HTML summary report)
+* small fixes
