@@ -16,7 +16,7 @@ class Motif:
     """
 
     def __init__(self, alphabet, sequences = None, pwm = None):
-        """ Initiliaze a motif by providing sequences or a PWM.
+        """ Initialize a motif by providing sequences or a PWM.
 
         Either a list of sequences or a PWM with shape (sequence length, alphabet length) 
         must be provided.

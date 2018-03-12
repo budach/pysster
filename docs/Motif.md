@@ -6,14 +6,14 @@ The Motif class is a convenience class to compute and plot a position-weight mat
 
 | name | description |
 |:-|:-|
-| \_\_init\_\_ | Initiliaze a motif by providing sequences or a PWM. |
+| \_\_init\_\_ | Initialize a motif by providing sequences or a PWM. |
 | plot | Plot the motif. |
 ## \_\_init\_\_
 
 ``` python
 def __init__(self, alphabet, sequences = None, pwm = None)
 ```
-Initiliaze a motif by providing sequences or a PWM. 
+Initialize a motif by providing sequences or a PWM. 
 
  Either a list of sequences or a PWM with shape (sequence length, alphabet length) must be provided. 
 
