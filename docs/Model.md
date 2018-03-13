@@ -142,7 +142,7 @@ def visualize_kernel(self, activations, data, kernel, folder, colors_sequence={}
 ```
 Get a number of visualizations and an importane score for a convolutional kernel. 
 
- This function creates three output files: 1) a sequence(/structure) motif that the kernel has learned to detect, 2) a histogram/mean activation plot showing the positional enrichment of said motif for every class and 3) violin plots showing the maximum activation distributions for every class (higher values == better, this is a proxy for general class enrichment). 
+ This function creates three output files: 1) a sequence(/structure) motif that the kernel has learned to detect, 2) a histogram/activation plot showing the positional enrichment of said motif for every class and 3) violin plots showing the maximum activation distributions for every class (higher values == better, this is a proxy for global class enrichment). 
 
  The output files are named "motif\_kernel\_x.png", "position\_kernel\_x.png" and "activations\_kernel\_x.png" 
 
@@ -150,7 +150,7 @@ Get a number of visualizations and an importane score for a convolutional kernel
 
  The histograms show the positions of the maximum activation, i.e. the positions the subsequences were extracted from. The activation plots show the mean activation and standard deviation for all sequence positions. Both plots are only based on sequences that led to a maximum activation higher than the threshold. Histogram and mean activation plot are usually identical, but in case the histogram is very sparse the mean activation plot might be easier to look at. 
 
- The violin plots show how the maximum activation values are distributed for each class, indicating class enrichment. 
+ The violin plots show how the maximum activation values are distributed for each class, indicating global class enrichment. 
 
  The function returns a Motif object (or a tuple of Motif objects for RNA sequence/structure motifs) and an importance score that indicates how important this kernel was for the classification (higher values == more important). The score is computed as maximum of the mean maximum activations per class minus minimum of the mean maximum activations per class. The idea is that kernels that show a big differences across classes (i.e. kernels that are strongly enriched in some classes and little to none in other classes) are more important for the network to deliver correct predictions. 
 

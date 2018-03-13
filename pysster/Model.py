@@ -227,9 +227,13 @@ class Model:
         results : dict
             A dict with 3 values ('activations', 'labels, 'group', see above)
         """
-        if not self.model.layers[2].name.startswith("conv1d"):
+        if not self.model.layers[2].name.startswith("conv1d") and \
+           not self.model.layers[0].name.startswith("dropout"):
             raise RuntimeError("First layer is not a convolutional layer.")
-        tmp_model = KModel(self.model.input, self.model.layers[2].output)
+        if self.model.layers[0].name.startswith("dropout"): # support models from pysster v1.0
+            tmp_model = KModel(self.model.input, self.model.layers[1].output)
+        else:
+            tmp_model = KModel(self.model.input, self.model.layers[2].output)
         data_gen = data._data_generator(group, self.params['batch_size'], False, False, meta=True)
         idx = data._get_idx(group)
         n = max(len(idx)//self.params['batch_size'] + (len(idx)%self.params['batch_size'] != 0), 1)
@@ -246,10 +250,10 @@ class Model:
         """ Get a number of visualizations and an importane score for a convolutional kernel.
 
         This function creates three output files: 1) a sequence(/structure) motif that the
-        kernel has learned to detect, 2) a histogram/mean activation plot showing the 
+        kernel has learned to detect, 2) a histogram/activation plot showing the 
         positional enrichment of said motif for every class and 3) violin plots showing 
         the maximum activation distributions for every class (higher values == better, 
-        this is a proxy for general class enrichment).
+        this is a proxy for global class enrichment).
 
         The output files are named "motif_kernel_x.png", "position_kernel_x.png" and
         "activations_kernel_x.png"
@@ -272,7 +276,7 @@ class Model:
         be easier to look at.
 
         The violin plots show how the maximum activation values are distributed for each class,
-        indicating class enrichment.
+        indicating global class enrichment.
 
         The function returns a Motif object (or a tuple of Motif objects for RNA sequence/structure
         motifs) and an importance score that indicates how important this kernel was for the
@@ -307,7 +311,8 @@ class Model:
         results: (pysster.Motif, float) or ((pysster.Motif, pysster.Motif), float)
             A Motif object (or a tuple of Motifs for sequence/structure motifs) and the importance score.
         """
-        if not self.model.layers[2].name.startswith("conv1d"):
+        if not self.model.layers[2].name.startswith("conv1d") and \
+           not self.model.layers[0].name.startswith("dropout"):
             raise RuntimeError("First layer is not a convolutional layer. Visualization not possible.")
         # this function is kind of messy to keep the memory usage low.
         # i am avoiding to compute the complete first conv layer output because
@@ -654,8 +659,13 @@ class Model:
 
 
     def _get_activations_idx_kernel(self, data, idx, group, kernel):
+        # support models from pysster v1.0
+        if self.model.layers[0].name.startswith("dropout"):
+            layer_idx = 1
+        else:
+            layer_idx = 2
         get_out = K.function([self.model.layers[0].input, K.learning_phase()],
-                             [self.model.layers[2].output[:,:,kernel]])
+                             [self.model.layers[layer_idx].output[:,:,kernel]])
         data_gen = data._data_generator(group, self.params['batch_size'], False, False, idx, meta=False)
         n = max(len(idx)//self.params['batch_size'] + (len(idx)%self.params['batch_size'] != 0), 1)
         activations = []
