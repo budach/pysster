@@ -59,7 +59,7 @@ By the time of writing the most recent TensorFlow version is 1.5 and requires CU
 
 ### Changelog
 
-**v1.1.2 - 12. March 2018**
+**v1.1.2 - 13. March 2018**
 * changed default color scheme for ACGT and ACGU alphabets to match conventions
 * added visualize_all_kernels() method to Model objects (visualize all kernels at once + get HTML summary report)
 * small fixes
