@@ -39,7 +39,7 @@ pip3 uninstall tensorflow
 pip3 install tensorflow-gpu
 ```
 
-By the time of writing the most recent TensorFlow version is 1.5 and requires CUDA 9 and cuDNN 7. You can always check the required versions in the TensorFlow [release notes](https://github.com/tensorflow/tensorflow/releases).
+By the time of writing the most recent TensorFlow version is 1.6 and requires CUDA 9 and cuDNN 7. You can always check the required versions in the TensorFlow [release notes](https://github.com/tensorflow/tensorflow/releases).
 
 
 ### Documentation
