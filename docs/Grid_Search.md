@@ -1,6 +1,6 @@
 # Class Grid\_Search - Documentation
 
-The Grid\_Search class provides a simple way to execute a hyperparameter tuning for the convolutional neural network model. Have a look at the Model documentation for an overview of all available hyperparameters. The tuning returns the best model (highest ROC-AUC on the validation data) and an overview of all trained models.
+The Grid\_Search class provides a simple way to execute a hyperparameter tuning for the convolutional neural network model. Have a look at the Model documentation for an overview of all available hyperparameters. The tuning returns the best model (highest ROC-AUC or PR-AUC on the validation data) and an overview of all trained models.
 
 ## Methods - Overview
 
@@ -25,17 +25,18 @@ Initialize the object with a collection of parameter values.
 ## train
 
 ``` python
-def train(self, data, verbose = True)
+def train(self, data, pr_auc = False, verbose = True)
 ```
 Train all models and return the best one. 
 
- Models are evaluated and ranked according to their ROC-AUC on a validation data set. 
+ Models are evaluated and ranked according to their ROC-AUC or PR-AUC (precision-recall) on a validation data set. 
 
 
 
 | parameter | type | description |
 |:-|:-|:-|
 | data | pysster.Data | A Data object providing training and validation data sets. |
+| pr_auc | bool | If True, the area under the precision-recall curve will be maximized instead of the area under the ROC curve |
 | verbose | bool | If True, progress information (train/val loss) will be printed throughout the training. |
 
 | returns | type | description |
