@@ -59,7 +59,7 @@ By the time of writing the most recent TensorFlow version is 1.6 and requires CU
 
 ### Changelog
 
-**v1.1.2 - 15. March 2018**
+**v1.1.2 - 16. March 2018 (PyPI)**
 * added visualize_all_kernels() method to Model objects (visualize all kernels at once + get HTML summary report)
 * it is now possible to maximize the PR-AUC (precision-recall) instead of the ROC-AUC during a grid search
 * changed default color scheme for ACGT and ACGU alphabets to match conventions
