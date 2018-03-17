@@ -1,9 +1,6 @@
 import re
 import numpy as np
 from random import choice
-from collections import defaultdict
-from itertools import chain
-from scipy import stats
 
 
 import pysster.utils as io
@@ -207,6 +204,7 @@ class Data:
         # standardize numerical data if desired
         else:
             if True == standardize:
+                from scipy import stats
                 self.meta[idx]['data'] = stats.zscore(self.meta[idx]['data'])
 
 

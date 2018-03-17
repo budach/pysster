@@ -8,15 +8,14 @@ from copy import deepcopy
 from tempfile import gettempdir
 from keras import backend as K
 from keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
-from keras.models import Sequential, load_model
+from keras.models import load_model
 from keras.models import Model as KModel
 from keras.layers import Dropout, Conv1D, MaxPooling1D, Flatten, Dense
 from keras.layers import Input, LSTM, GRU, Bidirectional, concatenate
 from keras.constraints import max_norm
 from keras.optimizers import Adam
-from keras.initializers import RandomUniform, Constant
+from keras.initializers import RandomUniform
 import keras.activations
-from collections import OrderedDict
 
 
 import pysster.utils as utils

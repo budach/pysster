@@ -4,25 +4,16 @@ import matplotlib.pyplot as plt
 import gzip
 import os
 import pickle
-import keras.models
 from itertools import groupby, repeat
-from multiprocessing import Pool
 from subprocess import check_output, call
 from os.path import dirname
-from sklearn.preprocessing import label_binarize, scale
-from sklearn.metrics import precision_recall_fscore_support, roc_curve, auc
-from sklearn.metrics import precision_recall_curve, average_precision_score
-import sklearn.metrics
 import forgi.graph.bulge_graph as cgb
 import numpy as np
 from shutil import which
 from collections import Counter
 from os import remove
-from PIL import Image
 from tempfile import gettempdir
 from math import ceil
-import seaborn as sns
-
 
 
 def save_model(model, file_path):
@@ -59,6 +50,7 @@ def load_model(file_path):
         A Model object.
     """
     from pysster.Model import Model
+    from keras.models import load_model as load_keras
     if not os.path.exists(file_path):
         raise RuntimeError("Path not found.")
     if not os.path.exists("{}.h5".format(file_path)):
@@ -66,7 +58,7 @@ def load_model(file_path):
     with gzip.open(file_path, "rb") as handle:
         params = pickle.load(handle)
     model = Model(params, None)
-    model.model = keras.models.load_model("{}.h5".format(file_path))
+    model.model = load_keras("{}.h5".format(file_path))
     return model
 
 
@@ -194,6 +186,8 @@ def predict_structures(input_file, output_file, num_processes=None, annotate=Fal
     annotate : bool
         Output the annotated structure string instead of the dot-bracket string. (default: false)
     """
+    from multiprocessing import Pool
+
     try:
         from RNA import fold
         predictor = _predict_rnalib
@@ -240,11 +234,13 @@ def _predict_and_annotate(fasta_entry, predict_function):
 
 
 def auROC(labels, predictions):
+    from sklearn.metrics import precision_recall_fscore_support, auc, roc_curve
     fpr, tpr, _ = roc_curve(labels, predictions)
     return fpr, tpr, auc(fpr, tpr)
 
 
 def roc_auc_per_class(labels, predictions):
+    from sklearn.preprocessing import label_binarize
     classes = list(range(max(labels)+1))
     y_true = label_binarize(labels, classes = classes)
     if len(classes) == 2:
@@ -255,11 +251,14 @@ def roc_auc_per_class(labels, predictions):
 
 
 def auPR(labels, predictions):
+    from sklearn.metrics import precision_recall_curve, average_precision_score
     precision, recall, _ = precision_recall_curve(labels, predictions)
     return precision, recall, average_precision_score(labels, predictions)
 
 
 def performance_report(labels, predictions):
+    from sklearn.preprocessing import label_binarize
+    from sklearn.metrics import precision_recall_fscore_support
     classes =  list(range(labels.shape[1]))
     roc_aucs, pr_aucs  = [], []
     if len(classes) == 2:
@@ -478,6 +477,7 @@ def _hide_top_right(ax):
 
 
 def plot_motif_summary(position_max, mean_acts, kernel, file_path):
+    from PIL import Image
     classes = []
     ylim_hist, ylim_mean = 0, 0
     for i, hist in enumerate(position_max):
@@ -568,6 +568,7 @@ def plot_violins(data, kernel, file_path):
 
 
 def plot_motif(logo, file_path, colors_sequence, colors_structure):
+    from PIL import Image
     if isinstance(logo, tuple):
         img1 = logo[0].plot(colors_sequence, scale=0.75)
         img2 = logo[1].plot(colors_structure, scale=0.75)
@@ -584,6 +585,7 @@ def plot_motif(logo, file_path, colors_sequence, colors_structure):
 
 
 def _set_sns_context(n_kernel):
+    import seaborn as sns
     if n_kernel <= 25:
         sns.set_context("notebook", rc={"ytick.labelsize":26})
     elif 25 < n_kernel <= 50:
@@ -597,11 +599,13 @@ def _set_sns_context(n_kernel):
 
 
 def _get_colors(x):
+    import seaborn as sns
     palette = ["hls", "Set1"][x < 10]
     return sns.color_palette(palette, x, 0.6)
 
 
 def _plot_heatmap(file_path, data, class_id, classes = None):
+    import seaborn as sns
     _set_sns_context(data.shape[1])
     n_classes = len(set(class_id))
     palette = _get_colors(n_classes)
@@ -631,6 +635,7 @@ def _plot_heatmap(file_path, data, class_id, classes = None):
 
 
 def combine_images(images, output_file):
+    from PIL import Image
     widths, heights = zip(*(i.size for i in images))
     new_im = Image.new('RGB', (max(widths), sum(heights)), "#ffffff")
     y_offset = 0

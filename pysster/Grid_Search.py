@@ -7,8 +7,6 @@ from copy import deepcopy
 import string
 import random
 
-
-from pysster.Data import Data
 from pysster.Model import Model
 import pysster.utils as utils
 
