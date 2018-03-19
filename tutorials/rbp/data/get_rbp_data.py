@@ -101,3 +101,5 @@ os.remove("grch37.fasta")
 os.remove("grch37.fasta.fai")
 os.remove("mm9.fasta")
 os.remove("mm9.fasta.fai")
+
+# IGF2BP: NIMAJFLGBKEDOCPH

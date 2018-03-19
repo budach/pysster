@@ -1,4 +1,4 @@
-# this script needs either the RNAlib python bindings or the RNAfold binary to be
+# this script needs either the ViennaRNA python bindings or the RNAfold binary to be
 # available to predict RNA secondary structures
 
 
@@ -14,18 +14,17 @@ def measure_rbp(entry):
     start = time()
 
     # predict secondary structures
-    utils.predict_structures(entry[0], entry[0]+".struct.gz", annotate=True)
-    utils.predict_structures(entry[1], entry[1]+".struct.gz", annotate=True)
-    utils.predict_structures(entry[2], entry[2]+".struct.gz", annotate=True)
-    utils.predict_structures(entry[3], entry[3]+".struct.gz", annotate=True)
+    utils.predict_structures(entry[0], entry[0]+".struct", annotate=True)
+    utils.predict_structures(entry[1], entry[1]+".struct", annotate=True)
+    utils.predict_structures(entry[2], entry[2]+".struct", annotate=True)
+    utils.predict_structures(entry[3], entry[3]+".struct", annotate=True)
 
     from pysster.Data import Data
     from pysster.Model import Model
 
     # load data
-    data = Data([entry[0]+".struct.gz", entry[1]+".struct.gz"], ("ACGU", "HIMS"))
+    data = Data([entry[0]+".struct", entry[1]+".struct"], ("ACGU", "HIMS"))
     data.train_val_test_split(0.8, 0.1999) # we need to have at least one test sequence, even though we have a separate test object
-    print(data.get_summary())
 
     # training
     params = {"kernel_len": 8}
@@ -33,7 +32,7 @@ def measure_rbp(entry):
     model.train(data)
 
     # load and predict test data
-    data_test = Data([entry[2]+".struct.gz", entry[3]+".struct.gz"], ("ACGU", "HIMS"))
+    data_test = Data([entry[2]+".struct", entry[3]+".struct"], ("ACGU", "HIMS"))
     predictions = model.predict(data_test, "all")
 
     stop = time()
@@ -43,7 +42,6 @@ def measure_rbp(entry):
     labels = data_test.get_labels("all")
     utils.plot_roc(labels, predictions, output_folder+"roc.pdf")
     utils.plot_prec_recall(labels, predictions, output_folder+"prec.pdf")
-    print(utils.get_performance_report(labels, predictions))
 
     # get motifs
     activations = model.get_max_activations(data_test, "all")

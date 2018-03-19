@@ -374,7 +374,10 @@ class Data:
         counts = sum(self.labels)
         counts = float(len(self.labels)) / counts
         counts = counts / counts.min()
-        return {i: val for i, val in enumerate(counts)}
+        counts = {i: val for i, val in enumerate(counts)}
+        if len(counts) == 2 and counts[0] == counts[1]:
+            counts[0] = 1.5
+        return counts
 
 
     def _get_sequences(self, class_id, group, select = None):

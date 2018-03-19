@@ -110,7 +110,7 @@ def predict_structures(input_file, output_file, num_processes=None, annotate=Fal
 ```
 Predict secondary structures for RNA sequences. 
 
- This is a convenience function to get quick RNA secondary structure predictions. The function will try to use the RNAlib python bindings or the RNAfold binary to perform predictions. If neither can be found the function raises a RuntimeError. Using the RNAlib python bindings is preferred as it is much faster. 
+ This is a convenience function to get quick RNA secondary structure predictions. The function will try to use the ViennaRNA python bindings or the RNAfold binary to perform predictions. If neither can be found the function raises a RuntimeError. Using the ViennaRNA python bindings is preferred as it is faster. 
 
  Entries of the output file look as follows if annotate = False: 
 
