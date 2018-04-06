@@ -1,16 +1,16 @@
 ## pysster: a Sequence-STructure classifiER  [![Build Status](https://travis-ci.org/budach/pysster.svg?branch=master)](https://travis-ci.org/budach/pysster) [![Build status](https://ci.appveyor.com/api/projects/status/b7kkrb0qu5fsanbh/branch/master?svg=true)](https://ci.appveyor.com/project/budach/pysster/branch/master) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 ### Learning Sequence And Structure Motifs In Biological Sequences Using Convolutional Neural Networks
 
-pysster is a Python package for training and interpretation of convolutional neural networks on biological sequence data. Sequences are classified by learning sequence and structure motifs and the package offers sensible default parameters, an optional hyper-parameter optimization procedure and options to visualize learned motifs. The main features of the package are:
+pysster is a Python package for training and interpretation of convolutional neural networks on biological sequence data. Sequences are classified by learning sequence (and optionally structure) motifs and the package offers sensible default parameters, a hyper-parameter optimization procedure and options to visualize learned motifs. The main features of the package are:
 
 * multi-class and single-label or multi-label classifications
-* sensible default parameters and an optional hyper-parameter tuning
-* learning of motifs + interpretation in terms of positional and class enrichment and motif co-occurrence
+* hyper-parameter tuning (grid search)
+* interpretation of learned motifs in terms of positional and class enrichment and motif co-occurrence
 * support of input strings over user-defined alphabets (e.g. applicable to DNA, RNA, protein data)
 * optional use of structure information, handcrafted features and recurrent layers
 * seamless CPU or GPU computation
 
-The preprint can be found on [bioRxiv](https://www.biorxiv.org/content/early/2018/02/06/230086).
+The corresponding *Bioinformatics* paper can be found [here](https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/bty222/4962494).
 
 If you run into bugs, missing documentation or if you have a feature request, feel free to open an issue.
 
@@ -39,7 +39,7 @@ pip3 uninstall tensorflow
 pip3 install tensorflow-gpu
 ```
 
-By the time of writing the most recent TensorFlow version is 1.6 and requires CUDA 9 and cuDNN 7. You can always check the required versions in the TensorFlow [release notes](https://github.com/tensorflow/tensorflow/releases).
+By the time of writing the most recent TensorFlow version is 1.7 and requires CUDA 9 and cuDNN 7. You can always check the required versions in the TensorFlow [release notes](https://github.com/tensorflow/tensorflow/releases).
 
 
 ### Documentation
