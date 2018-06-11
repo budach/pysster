@@ -239,17 +239,6 @@ def auROC(labels, predictions):
     return fpr, tpr, auc(fpr, tpr)
 
 
-def roc_auc_per_class(labels, predictions):
-    from sklearn.preprocessing import label_binarize
-    classes = list(range(max(labels)+1))
-    y_true = label_binarize(labels, classes = classes)
-    if len(classes) == 2:
-        return [auROC(labels, predictions[:, 1])[2]] * 2
-    else:
-        for x in classes:
-            return [auROC(y_true[:, x], predictions[:, x])[2] for x in classes]
-
-
 def auPR(labels, predictions):
     from sklearn.metrics import precision_recall_curve, average_precision_score
     precision, recall, _ = precision_recall_curve(labels, predictions)
