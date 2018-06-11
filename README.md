@@ -16,18 +16,18 @@ If you run into bugs, missing documentation or if you have a feature request, fe
 
 ### Installation
 
-pysster is compatible with Python 3.5+ and can be installed via pip or github.
+pysster is compatible with Python 3.5+ and can be installed from PyPI or GitHub.
 
-**Install via pip:**
-
-```sh
-pip3 install pysster
-```
-**Install latest version via github:**
+**Install latest version from GitHub (recommended):**
 ```sh
 git clone https://github.com/budach/pysster.git
 cd pysster
 pip3 install .
+```
+**Install from PyPI:**
+
+```sh
+pip3 install pysster
 ```
 
 ### Using the GPU
