@@ -251,8 +251,8 @@ def performance_report(labels, predictions):
     classes =  list(range(labels.shape[1]))
     roc_aucs, pr_aucs  = [], []
     if len(classes) == 2:
-        roc_aucs = [auROC(labels[:, 1], predictions[:, 1])[2]] * 2
-        pr_aucs = [auPR(labels[:, 1], predictions[:, 1])[2]] * 2
+        roc_aucs = [auROC(labels[:, 0], predictions[:, 0])[2]] * 2
+        pr_aucs = [auPR(labels[:, 0], predictions[:, 0])[2]] * 2
         labels = label_binarize(np.argmax(labels, axis = 1), classes = classes)
     else:
         for x in classes:
@@ -336,7 +336,7 @@ def plot_roc(labels, predictions, file_path):
     ax.set_xlabel('False Positive Rate')
     ax.set_ylabel('True Positive Rate')
     if len(classes) == 2:
-        fpr, tpr, roc_auc = auROC(labels[:, 1], predictions[:, 1])
+        fpr, tpr, roc_auc = auROC(labels[:, 0], predictions[:, 0])
         label = 'AUC = {:.3f}'.format(roc_auc)
         ax.plot(fpr, tpr, linewidth = 2.2, color = colors[0], label = label)
     else:
@@ -376,7 +376,7 @@ def plot_prec_recall(labels, predictions, file_path):
     ax.set_xlabel('Recall')
     ax.set_ylabel('Precision')
     if len(classes) == 2:
-        precision, recall, prec_auc = auPR(labels[:,1], predictions[:, 1])
+        precision, recall, prec_auc = auPR(labels[:,0], predictions[:, 0])
         label = 'AUC = {:.3f}'.format(prec_auc)
         ax.plot(recall, precision, linewidth = 2.2, color = colors[0], label = label)
     else:

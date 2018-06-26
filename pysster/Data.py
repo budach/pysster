@@ -342,7 +342,6 @@ class Data:
                     else:
                         # don't yield additional data
                         yield np.array([self.data[x] for x in idx[i:(i+batch_size)]])
-                            
 
 
     def _get_additional_data(self, idx, i, batch_size):

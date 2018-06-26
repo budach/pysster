@@ -347,8 +347,9 @@ class Model:
             # get the sequence logo from sequences from the threshold class (max 500 sequences)
             if class_id == thresh_class:
                 select = np.in1d(idx_labels, idx_class_seq).nonzero()[0]
-                if len(select) > 500:
-                    value500 = heapq.nlargest(500, max_per_class[class_id][select])[-1]
+                max_seqs = min(500, int(len(idx_class)/3))
+                if len(select) > max_seqs:
+                    value500 = heapq.nlargest(max_seqs, max_per_class[class_id][select])[-1]
                     select_seqs = np.where(max_per_class[class_id] >= value500)[0]
                     select = np.in1d(select, select_seqs)
                     sequences = data._get_sequences(class_id, activations["group"], select_seqs)
