@@ -176,7 +176,7 @@ class Data:
             Should the z-score be computed for numerical data?
         """
         if not isinstance(class_files, list):
-            class_files = list(class_files)
+            class_files = [class_files]
         # load raw data
         idx = len(self.meta)
         self.meta[idx] = {"data":[], "is_categorical": is_categorical}
@@ -252,7 +252,7 @@ class Data:
             A short feature name (will be shown in kernel output plots)
         """
         if not isinstance(class_files, list):
-            class_files = list(class_files)
+            class_files = [class_files]
         len_sequence = self.data[0].shape[0]
         if identifier in self.positionwise:
             raise RuntimeError("Identifier '{}' already exists.".format(identifier))
