@@ -142,9 +142,9 @@ def visualize_kernel(self, activations, data, kernel, folder, colors_sequence={}
 ```
 Get a number of visualizations and an importane score for a convolutional kernel. 
 
- This function creates three output files: 1) a sequence(/structure) motif that the kernel has learned to detect, 2) a histogram/activation plot showing the positional enrichment of said motif for every class and 3) violin plots showing the maximum activation distributions for every class (higher values == better, this is a proxy for global class enrichment). 
+ This function creates three (or four) output files: 1) a sequence(/structure) motif that the kernel has learned to detect, 2) a histogram/activation plot showing the positional enrichment of said motif for every class, 3) violin plots showing the maximum activation distributions for every class (higher values == better, this is a proxy for global class enrichment) and 4), in case additional position-wise features are used, a line plot for each feature showing mean and standard deviation (see load\_additional\_positionwise\_data() in the Data API). 
 
- The output files are named "motif\_kernel\_x.png", "position\_kernel\_x.png" and "activations\_kernel\_x.png" 
+ The output files are named "motif\_kernel\_x.png", "position\_kernel\_x.png", "activations\_kernel\_x.png" and "additional\_features\_kernel\_x.png". 
 
  How it works: Given an input sequence, a first layer kernel produces an output vector (called activations) of length sequence\_length - kernel\_length + 1. The position of the maximum activation can therefore be directly mapped back to the input sequence and a subsequence of the length of the kernel can be extracted from the input sequence. Applying this approach to every input sequence yields a number of subsequences that can be used for the construction of a motif. Subsequences are only considered if the maximum activation exceeds a certain threshold, in this case the maximum of the mean maximum activations per class. Only subsequences from the top class are used to construct the motif (up to 500 subsequences). 
 
@@ -175,7 +175,7 @@ def visualize_all_kernels(self, activations, data, folder, colors_sequence={}, c
 ```
 Get visualizations for all first-layer convolutional kernels. 
 
- This functions creates the same three output files as visualize\_kernel() (see there for details), but for all kernels of the first convolutional layer. It also creates a "summary.html" file showing all plots for each kernel side-by-side. Kernels are sorted by the global importance score. 
+ This functions creates the same four output files as visualize\_kernel() (see there for details), but for all kernels of the first convolutional layer. It also creates a "summary.html" file showing all plots for each kernel side-by-side. Kernels are sorted by the global importance score. 
 
  The function returns a list holding Motif objects for each kernel (similar to visualize\_kernel()). This list is not sorted by importance score (i.e. kernel 0 comes first) 
 

@@ -1,6 +1,7 @@
 import re
 import numpy as np
 from random import choice
+from collections import OrderedDict
 
 
 import pysster.utils as io
@@ -81,6 +82,7 @@ class Data:
             Are structures provided as single strings (False) or as PWMs (True)?
         """
         self.meta = {}
+        self.positionwise = OrderedDict()
         self.is_rna_pwm = False
         if isinstance(alphabet, tuple):
             self.is_rna = True
@@ -173,6 +175,8 @@ class Data:
         standardize: bool
             Should the z-score be computed for numerical data?
         """
+        if not isinstance(class_files, list):
+            class_files = list(class_files)
         # load raw data
         idx = len(self.meta)
         self.meta[idx] = {"data":[], "is_categorical": is_categorical}
@@ -206,6 +210,66 @@ class Data:
             if True == standardize:
                 from scipy import stats
                 self.meta[idx]['data'] = stats.zscore(self.meta[idx]['data'])
+
+
+    def load_additional_positionwise_data(self, class_files, identifier):
+        """ Add additional numerical features for every sequence position to the network
+
+        For every position in an input sequence additional numerical data can be added to
+        the network (e.g. ChIP-seq signal, conservation for every nucleotide).
+        The data will be added to the input matrix. E.g.: Using sequences of length 200
+        over the alphabet "ACGT" results in input matrices of size 4x200. Additional position-wise
+        data will be added to these matrices as a new row resulting in matrices of size 5x200.
+        
+        Input files are text files and must contain as many whitespace-separated values 
+        in each line as the sequences are long, e.g.:
+        
+        '0.679 1.223 -0.296  ...
+        '0.961 0.532 0.112   ...
+        '0.065 -0.333 -0.256 ...
+        '...
+        
+        The number of provided files must match the fasta files provided to the __init__
+        function (e.g. if you provided a list of 3 files to __init__ you must provide a list
+        of 3 files here as well) and the number of lines in each file must match the number of
+        entries in the corresponding fasta file. If you want to add multiple features simply
+        call this function multiple times.
+
+        Input features should be standardized (z-scores) prior to adding them to the network, as
+        this tends to improve the predictive performance.
+
+        In the same way network kernels are visualized as sequence motifs after the network
+        training (based on the first 4 rows of the input matrices and using the visualize_kernel()
+        Model function), the rows corresponding to additional features are summarized
+        as line plots as well.
+
+        Parameters
+        ----------
+        class_files: str or [str]
+            A text file (multi-label) or a list of text files (single-label).
+        
+        identifier: str
+            A short feature name (will be shown in kernel output plots)
+        """
+        if not isinstance(class_files, list):
+            class_files = list(class_files)
+        len_sequence = self.data[0].shape[0]
+        if identifier in self.positionwise:
+            raise RuntimeError("Identifier '{}' already exists.".format(identifier))
+        
+        new_data = np.empty((len(self.labels), len_sequence), dtype=np.float32)
+        row = 0
+        for file_name in class_files:
+            handle = io.get_handle(file_name, 'rt')
+            for line in handle:
+                new_data[row,:] = [float(x) for x in line.split()]
+                row += 1
+            handle.close()
+        if row != len(self.labels):
+            raise RuntimeError("Amount of additional data ({}) doesn't match number of sequences ({}).".format(
+                row, len(self.labels)
+            ))
+        self.positionwise[identifier] = new_data
 
 
     def get_labels(self, group):
@@ -320,28 +384,43 @@ class Data:
             if shuffle:
                 np.random.seed(seed)
                 np.random.shuffle(idx)
-            # also yield labels
-            if labels:
-                for i in range(0, len(idx), batch_size):
-                    # yield additional data
-                    if meta==True and len(self.meta) > 0:
-                        yield ([np.array([self.data[x] for x in idx[i:(i+batch_size)]]),
-                                self._get_additional_data(idx, i, batch_size)],
-                                np.array([self.labels[x] for x in idx[i:(i+batch_size)]]))
-                    # don't yield additional data
-                    else:
-                        yield (np.array([self.data[x] for x in idx[i:(i+batch_size)]]),
-                               np.array([self.labels[x] for x in idx[i:(i+batch_size)]]))
-            # don't yield labels
-            else:
-                for i in range(0, len(idx), batch_size):
-                    # yield additional data
-                    if meta==True and len(self.meta) > 0:
-                        yield [np.array([self.data[x] for x in idx[i:(i+batch_size)]]),
-                               self._get_additional_data(idx, i, batch_size)]
-                    else:
-                        # don't yield additional data
-                        yield np.array([self.data[x] for x in idx[i:(i+batch_size)]])
+            for i in range(0, len(idx), batch_size):
+                if len(self.positionwise) > 0:
+                    out_data = self._get_positionwise_data(idx, i, batch_size)
+                    if meta == True and len(self.meta) > 0:
+                        out_data = [out_data, self._get_additional_data(idx, i, batch_size)]
+                else:
+                    out_data = np.array([self.data[x] for x in idx[i:(i+batch_size)]])
+                    if meta == True and len(self.meta) > 0:
+                        out_data = [out_data, self._get_additional_data(idx, i, batch_size)]
+                if labels:
+                    out_labels = np.array([self.labels[x] for x in idx[i:(i+batch_size)]])
+                    yield (out_data, out_labels) 
+                else:
+                    yield out_data
+
+
+    def _data_gen_no_labels_meta(self, group, batch_size, select):
+        idx = self._get_idx(group)[select]
+        while 1:
+            for i in range(0, len(idx), batch_size):
+                if len(self.positionwise) == 0:
+                    yield np.array([self.data[x] for x in idx[i:(i+batch_size)]])
+                else:
+                    yield self._get_positionwise_data(idx, i, batch_size)
+
+
+    def _get_positionwise_data(self, idx, i, batch_size):
+        shape_data = self._shape()
+        dim_seq = self.data[0].shape[1]
+        result = []
+        for x in idx[i:(i+batch_size)]:
+            data = np.empty(shape_data, dtype=np.float32)
+            data[:,:dim_seq] = self.data[x]
+            for i, identifier in enumerate(self.positionwise):
+                data[:,dim_seq+i] = self.positionwise[identifier][x]
+            result.append(data)
+        return np.array(result)
 
 
     def _get_additional_data(self, idx, i, batch_size):
@@ -366,6 +445,9 @@ class Data:
 
 
     def _shape(self):
+        # to be backward compatible
+        if 'positionwise' in dir(self):
+            return (self.data[0].shape[0], self.data[0].shape[1] + len(self.positionwise))
         return self.data[0].shape
 
 
@@ -394,4 +476,18 @@ class Data:
                 sequences.append(self.one_hot_encoder.decode(self.data[idx[x]]))
         return sequences
 
+
+    def _get_positionwise_for_plots(self, class_id, group, select = None):
+        idx = self._get_idx(group)
+        labels = np.array([self.labels[x] for x in idx])
+        idx = idx[np.nonzero(labels[:, class_id])[0]]
+        if select is None:
+            select = range(len(idx))
+        data = []
+        for identifier in self.positionwise:
+            feature = []
+            for x in select:
+                feature.append(self.positionwise[identifier][x,:])
+            data.append(feature)
+        return data
 

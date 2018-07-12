@@ -233,7 +233,7 @@ class Model:
             tmp_model = KModel(self.model.input, self.model.layers[1].output)
         else:
             tmp_model = KModel(self.model.input, self.model.layers[2].output)
-        data_gen = data._data_generator(group, self.params['batch_size'], False, False, meta=True)
+        data_gen = data._data_generator(group, self.params['batch_size'], False, False)
         idx = data._get_idx(group)
         n = max(len(idx)//self.params['batch_size'] + (len(idx)%self.params['batch_size'] != 0), 1)
         activations = []
@@ -248,14 +248,16 @@ class Model:
     def visualize_kernel(self, activations, data, kernel, folder, colors_sequence={}, colors_structure={}):
         """ Get a number of visualizations and an importane score for a convolutional kernel.
 
-        This function creates three output files: 1) a sequence(/structure) motif that the
+        This function creates three (or four) output files: 1) a sequence(/structure) motif that the
         kernel has learned to detect, 2) a histogram/activation plot showing the 
-        positional enrichment of said motif for every class and 3) violin plots showing 
+        positional enrichment of said motif for every class, 3) violin plots showing 
         the maximum activation distributions for every class (higher values == better, 
-        this is a proxy for global class enrichment).
+        this is a proxy for global class enrichment) and 4), in case additional position-wise
+        features are used, a line plot for each feature showing mean and standard
+        deviation (see load_additional_positionwise_data() in the Data API).
 
-        The output files are named "motif_kernel_x.png", "position_kernel_x.png" and
-        "activations_kernel_x.png"
+        The output files are named "motif_kernel_x.png", "position_kernel_x.png",
+        "activations_kernel_x.png" and "additional_features_kernel_x.png".
 
         How it works:
         Given an input sequence, a first layer kernel produces an output vector (called activations)
@@ -354,10 +356,21 @@ class Model:
                     select = np.in1d(select, select_seqs)
                     sequences = data._get_sequences(class_id, activations["group"], select_seqs)
                     logo = self._plot_motif(data, self._get_subseq(sequences, histograms[-1][select]))
+                    if "positionwise" in dir(data) and len(data.positionwise) > 0:
+                        add_data = data._get_positionwise_for_plots(class_id, activations["group"], select_seqs)
+                        for i, block in enumerate(add_data):
+                            add_data[i] = self._get_subseq(block, histograms[-1][select])
                 else:
                     sequences = data._get_sequences(class_id, activations["group"], select)
                     logo = self._plot_motif(data, self._get_subseq(sequences, histograms[-1]))
+                    if "positionwise" in dir(data) and len(data.positionwise) > 0:
+                        add_data = data._get_positionwise_for_plots(class_id, activations["group"], select)
+                        for i, block in enumerate(add_data):
+                            add_data[i] = self._get_subseq(block, histograms[-1])
         # plot everything
+        if "positionwise" in dir(data) and len(data.positionwise) > 0:
+            utils.plot_positionwise(add_data, list(data.positionwise.keys()),
+                                    "{}additional_features_kernel_{}.png".format(folder, kernel))
         utils.plot_motif(logo, "{}motif_kernel_{}.png".format(folder, kernel), colors_sequence, colors_structure)
         utils.plot_motif_summary(histograms, mean_acts, kernel, "{}position_kernel_{}.png".format(folder, kernel))
         utils.plot_violins(max_per_class, kernel, "{}activations_kernel_{}.png".format(folder, kernel))
@@ -367,7 +380,7 @@ class Model:
     def visualize_all_kernels(self, activations, data, folder, colors_sequence={}, colors_structure={}):
         """ Get visualizations for all first-layer convolutional kernels.
 
-        This functions creates the same three output files as visualize_kernel() (see there for details),
+        This functions creates the same four output files as visualize_kernel() (see there for details),
         but for all kernels of the first convolutional layer. It also creates a "summary.html" file
         showing all plots for each kernel side-by-side. Kernels are sorted by the global importance score.
 
@@ -408,7 +421,10 @@ class Model:
         # sort kernels by importance score (highest score first)
         sorted_idx = [i[0] for i in sorted(enumerate(scores), key=lambda x:x[1], reverse=True)]
         # create html summary showing all individual kernel plots side-by-side sorted by score
-        utils.html_report(sorted_idx, scores, folder, self.params["class_num"])
+        if "positionwise" in dir(data) and len(data.positionwise) > 0:
+            utils.html_report(sorted_idx, scores, folder, self.params["class_num"], len(data.positionwise)*225)
+        else:
+            utils.html_report(sorted_idx, scores, folder, self.params["class_num"])
         # return list with motif objects (not sorted by score, kernel 0 comes first)
         return logos
 
@@ -510,6 +526,8 @@ class Model:
         """
         if len(self.inputs) > 1:
             raise RuntimeError("Optimization not possible for a model with additional input.")
+        if 'positionwise' in dir(data) and len(data.positionwise) > 0:
+            raise RuntimeError("Optimization currently not possible for a model with additional position-wise input.")
         if nodes == None:
             nodes = list(range(self.model.get_layer(layer_name).output_shape[-1]))
         if layer_name == self.model.layers[-1].name:
@@ -666,7 +684,10 @@ class Model:
             layer_idx = 2
         get_out = K.function([self.model.layers[0].input, K.learning_phase()],
                              [self.model.layers[layer_idx].output[:,:,kernel]])
-        data_gen = data._data_generator(group, self.params['batch_size'], False, False, idx, meta=False)
+        if '_data_gen_no_labels_meta' in dir(data):
+            data_gen = data._data_gen_no_labels_meta(group, self.params['batch_size'], idx)
+        else:
+            data_gen = data._data_generator(group, self.params['batch_size'], False, False, idx, meta=False)
         n = max(len(idx)//self.params['batch_size'] + (len(idx)%self.params['batch_size'] != 0), 1)
         activations = []
         for _ in range(n):

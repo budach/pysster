@@ -11,6 +11,7 @@ The Data class provides a convenient way to handle biological sequence and struc
 | \_\_init\_\_ | Load the sequences and split the data into 70%/15%/15% training/validation/test. |
 | train\_val\_test\_split | Randomly split the data into training, validation and test set. |
 | load\_additional\_data | Add additional handcrafted numerical or categorical features to the network. |
+| load\_additional\_positionwise\_data | Add additional numerical features for every sequence position to the network |
 | get\_labels | Get the labels for a subset of the data. |
 | get\_summary | Get an overview of the training/validation/test data for each class. |
 ## \_\_init\_\_
@@ -96,6 +97,35 @@ Add additional handcrafted numerical or categorical features to the network.
 | class_files | str or [str] | A text file (multi-label) or a list of text files (single-label). |
 | is_categorical | bool | Is the provided data categorical or numerical? |
 | standardize | bool | Should the z-score be computed for numerical data? |
+## load\_additional\_positionwise\_data
+
+``` python
+def load_additional_positionwise_data(self, class_files, identifier)
+```
+Add additional numerical features for every sequence position to the network 
+
+ For every position in an input sequence additional numerical data can be added to the network (e.g. ChIP-seq signal, conservation for every nucleotide). The data will be added to the input matrix. E.g.: Using sequences of length 200 over the alphabet "ACGT" results in input matrices of size 4x200. Additional position-wise data will be added to these matrices as a new row resulting in matrices of size 5x200. 
+
+ Input files are text files and must contain as many whitespace-separated values in each line as the sequences are long, e.g.: 
+
+  0.679 1.223 -0.296  ...  
+  0.961 0.532 0.112   ...  
+  0.065 -0.333 -0.256 ...  
+  ...  
+ 
+
+ The number of provided files must match the fasta files provided to the \_\_init\_\_ function (e.g. if you provided a list of 3 files to \_\_init\_\_ you must provide a list of 3 files here as well) and the number of lines in each file must match the number of entries in the corresponding fasta file. If you want to add multiple features simply call this function multiple times. 
+
+ Input features should be standardized (z-scores) prior to adding them to the network, as this tends to improve the predictive performance. 
+
+ In the same way network kernels are visualized as sequence motifs after the network training (based on the first 4 rows of the input matrices and using the visualize\_kernel() Model function), the rows corresponding to additional features are summarized as line plots as well. 
+
+
+
+| parameter | type | description |
+|:-|:-|:-|
+| class_files | str or [str] | A text file (multi-label) or a list of text files (single-label). |
+| identifier | str | A short feature name (will be shown in kernel output plots) |
 ## get\_labels
 
 ``` python

@@ -649,7 +649,7 @@ def randargmax(data):
     return result
 
 
-def html_report(sorted_idx, scores, folder, class_num):
+def html_report(sorted_idx, scores, folder, class_num, size=None):
     handle = open(folder+"summary.html", "wt")
     handle.write('<!doctype html>\n<html>\n<head>\n<meta charset="UTF-8">\n')
     handle.write('<title>Kernel Summary</title>\n<style media="screen" type="text/css">\n')
@@ -660,9 +660,38 @@ def html_report(sorted_idx, scores, folder, class_num):
     handle.write('<body>\n<div id="report">\n<table>\n')
     for kernel in sorted_idx:
         handle.write('<tr>\n<td>Kernel {}<br/>score = {:.3f}</td>\n'.format(kernel, scores[kernel]))
-        handle.write('<td><img src="motif_kernel_{}.png" height=150/></td>\n'.format(kernel))
+        if size == None:
+            handle.write('<td><img src="motif_kernel_{}.png" height=150/></td>\n'.format(kernel))
+        else:
+            handle.write('<td><img src="motif_kernel_{}.png" height=150/><br>'.format(kernel))
+            handle.write('<img src="additional_features_kernel_{}.png" height={}/></td>\n'.format(kernel, size))
         handle.write('<td><img src="activations_kernel_{}.png" height=300/></td>\n'.format(kernel))
         handle.write('<td><img src="position_kernel_{}.png" height={}/></td>\n</tr>\n'.format(
             kernel, 300 * max(ceil(class_num/3), 1)))
     handle.write('</table>\n</div>\n</body>\n</html>')
     handle.close()
+
+
+def plot_positionwise(add_data, identifiers, file_path):
+    matplotlib.rcParams.update({"font.size": 30})
+    x = list(range(1, add_data[0][0].shape[0]+1))
+    fig, ax = plt.subplots(nrows=len(add_data), ncols=1, figsize=(26, 7*len(add_data)))
+    if not isinstance(ax, np.ndarray):
+        ax = [ax]
+    for i in range(len(add_data)):
+        mean, std = np.mean(add_data[i], axis=0), np.std(add_data[i], axis=0)
+        ax[i].fill_between(x, mean-std, mean+std, color='r', alpha = 0.1)
+        ax[i].plot(x, mean, 'ro-', linewidth=5.0, markersize=15.0)
+        if len(x) <= 30:
+            ax[i].set_xticks(x)
+        elif len(x) > 75:
+            ax[i].set_xticks(list(range(1, max(x), 3)))
+        else:
+            ax[i].set_xticks(list(range(1, max(x), 2)))
+        ax[i].set_ylabel("{}".format(identifiers[i]))
+        _hide_top_right(ax[i])
+    plt.tight_layout()
+    fig.savefig(file_path)
+    fig.clf()
+    plt.close('all')
+    matplotlib.rcParams.update(matplotlib.rcParamsDefault)
