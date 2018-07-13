@@ -359,7 +359,7 @@ class Model:
                     if "positionwise" in dir(data) and len(data.positionwise) > 0:
                         add_data = data._get_positionwise_for_plots(class_id, activations["group"], select_seqs)
                         for i, block in enumerate(add_data):
-                            add_data[i] = self._get_subseq(block, histograms[-1][select])
+                           add_data[i] = self._get_subseq(block, histograms[-1][select])
                 else:
                     sequences = data._get_sequences(class_id, activations["group"], select)
                     logo = self._plot_motif(data, self._get_subseq(sequences, histograms[-1]))

@@ -675,13 +675,14 @@ def html_report(sorted_idx, scores, folder, class_num, size=None):
 def plot_positionwise(add_data, identifiers, file_path):
     matplotlib.rcParams.update({"font.size": 30})
     x = list(range(1, add_data[0][0].shape[0]+1))
-    fig, ax = plt.subplots(nrows=len(add_data), ncols=1, figsize=(26, 7*len(add_data)))
+    fig, ax = plt.subplots(nrows=len(add_data), ncols=1,
+                           figsize=(int(26*(len(x)/20)), 7*len(add_data)))
     if not isinstance(ax, np.ndarray):
         ax = [ax]
     for i in range(len(add_data)):
         mean, std = np.mean(add_data[i], axis=0), np.std(add_data[i], axis=0)
-        ax[i].fill_between(x, mean-std, mean+std, color='r', alpha = 0.1)
-        ax[i].plot(x, mean, 'ro-', linewidth=5.0, markersize=15.0)
+        ax[i].fill_between(x, mean-std, mean+std, color='orange', alpha = 0.1)
+        ax[i].plot(x, mean, 'o-', linewidth=5.0, markersize=15.0, color="orange")
         if len(x) <= 30:
             ax[i].set_xticks(x)
         elif len(x) > 75:

@@ -138,7 +138,7 @@ class Data:
 
 
     def load_additional_data(self, class_files, is_categorical=False, standardize=False):
-        """ Add additional handcrafted numerical or categorical features to the network.
+        """ Add additional numerical or categorical features to the network (for each sequence as a whole).
 
         For every input sequence additional data can be added to the network (e.g. location,
         average sequence conservation, etc.). The data will be concatenated to the input of the
@@ -213,7 +213,7 @@ class Data:
 
 
     def load_additional_positionwise_data(self, class_files, identifier):
-        """ Add additional numerical features for every sequence position to the network
+        """ Add additional numerical features to the network (for each nucleotide in a sequence).
 
         For every position in an input sequence additional numerical data can be added to
         the network (e.g. ChIP-seq signal, conservation for every nucleotide).
@@ -261,8 +261,13 @@ class Data:
         row = 0
         for file_name in class_files:
             handle = io.get_handle(file_name, 'rt')
-            for line in handle:
-                new_data[row,:] = [float(x) for x in line.split()]
+            for i, line in enumerate(handle):
+                try:
+                    new_data[row,:] = [float(x) for x in line.split()]
+                except ValueError as err:
+                    raise RuntimeError("ValueError: {} (in line {} in {}).".format(
+                        err, i+1, file_name
+                    ))
                 row += 1
             handle.close()
         if row != len(self.labels):
@@ -487,7 +492,7 @@ class Data:
         for identifier in self.positionwise:
             feature = []
             for x in select:
-                feature.append(self.positionwise[identifier][x,:])
+                feature.append(self.positionwise[identifier][idx[x],:])
             data.append(feature)
         return data
 

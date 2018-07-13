@@ -10,8 +10,8 @@ The Data class provides a convenient way to handle biological sequence and struc
 |:-|:-|
 | \_\_init\_\_ | Load the sequences and split the data into 70%/15%/15% training/validation/test. |
 | train\_val\_test\_split | Randomly split the data into training, validation and test set. |
-| load\_additional\_data | Add additional handcrafted numerical or categorical features to the network. |
-| load\_additional\_positionwise\_data | Add additional numerical features for every sequence position to the network |
+| load\_additional\_data | Add additional numerical or categorical features to the network (for each sequence as a whole). |
+| load\_additional\_positionwise\_data | Add additional numerical features to the network (for each nucleotide in a sequence). |
 | get\_labels | Get the labels for a subset of the data. |
 | get\_summary | Get an overview of the training/validation/test data for each class. |
 ## \_\_init\_\_
@@ -75,7 +75,7 @@ Randomly split the data into training, validation and test set.
 ``` python
 def load_additional_data(self, class_files, is_categorical=False, standardize=False)
 ```
-Add additional handcrafted numerical or categorical features to the network. 
+Add additional numerical or categorical features to the network (for each sequence as a whole). 
 
  For every input sequence additional data can be added to the network (e.g. location, average sequence conservation, etc.). The data will be concatenated to the input of the first dense layer (i.e. additional neurons in the first dense layer will be created). Input files are text files and must contain one value per line (values can be strings if the data is categorical), e.g.: 
 
@@ -102,7 +102,7 @@ Add additional handcrafted numerical or categorical features to the network.
 ``` python
 def load_additional_positionwise_data(self, class_files, identifier)
 ```
-Add additional numerical features for every sequence position to the network 
+Add additional numerical features to the network (for each nucleotide in a sequence). 
 
  For every position in an input sequence additional numerical data can be added to the network (e.g. ChIP-seq signal, conservation for every nucleotide). The data will be added to the input matrix. E.g.: Using sequences of length 200 over the alphabet "ACGT" results in input matrices of size 4x200. Additional position-wise data will be added to these matrices as a new row resulting in matrices of size 5x200. 
 

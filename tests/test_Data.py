@@ -1,6 +1,9 @@
 import unittest
 import numpy as np
 from os.path import dirname
+from os import remove
+from tempfile import gettempdir
+from PIL import Image
 
 
 from pysster.Data import Data
@@ -20,11 +23,15 @@ class Test_Data(unittest.TestCase):
         rna_files = folder + "/data/rna.fasta"
         rna_pwm = [folder + '/data/rna_pwm1.fasta', folder + '/data/rna_pwm2.fasta']
         rna_pwm_add = [folder + '/data/rna_pwm1_add.txt', folder + '/data/rna_pwm2_add.txt']
+        rna_pwm_pos_feat1 = [folder + '/data/rna_pwm1_pos.txt', folder + '/data/rna_pwm2_pos.txt']
+        rna_pwm_pos_feat2 = [folder + '/data/rna_pwm2_pos.txt', folder + '/data/rna_pwm1_pos.txt']
         self.data_dna = Data(dna_files, "ACGT")
         self.data_rna_dot = Data(rna_files, ("ACGU", "()."))
         self.data_pwm = Data(rna_pwm, ('ACGU', '().'), structure_pwm=True)
         self.data_pwm.load_additional_data(rna_pwm_add, is_categorical=False)
         self.data_pwm.load_additional_data(rna_pwm_add, is_categorical=True)
+        self.data_pwm.load_additional_positionwise_data(rna_pwm_pos_feat1, "feat1")
+        self.data_pwm.load_additional_positionwise_data(rna_pwm_pos_feat2, "feat2")
 
     
     def test_data_init_dna(self):
@@ -85,6 +92,7 @@ class Test_Data(unittest.TestCase):
     def test_data_shape(self):
         self.assertTrue(self.data_dna._shape() == (32,4))
         self.assertTrue(self.data_rna_dot._shape() == (40,12))
+        self.assertTrue(self.data_pwm._shape() == (10,14))
 
 
     def test_data_get_sequences(self):
@@ -200,7 +208,30 @@ class Test_Data(unittest.TestCase):
         self.assertTrue(np.allclose(addi[1], [2,*self.data_pwm.meta[1]['data'][1]]))
         self.assertTrue(np.allclose(addi[2], [16,*self.data_pwm.meta[1]['data'][15]]))
         self.assertTrue(np.allclose(addi[3], [16,*self.data_pwm.meta[1]['data'][16]]))
+
+        # check position-wise additional data
+        self.assertTrue(len(self.data_pwm.positionwise) == 2)
+        self.assertTrue(list(self.data_pwm.positionwise.keys()) == ["feat1", "feat2"])
+        gen = self.data_pwm._data_generator("all", 32, False, False)
+        dat = next(gen)
+        self.assertTrue(dat[1].shape == (32,17))
+        self.assertTrue(dat[0].shape == (32,10,14))
+        self.assertTrue(np.allclose(dat[0][0,:,12], [0.9, 0.8, 0.7, 0.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]))
+        self.assertTrue(np.allclose(dat[0][31,:,13], [0.1, 0.2, 0.3, 0.1, 1.0, 1.0, 0.8, 0.3, 0.2, 0.1]))
+        self.assertTrue(np.allclose(dat[0][31,:,12], [2.1, 2.2, 2.3, 2.1, 2.0, 2.0, 2.8, 2.3, 2.2, 2.1]))
+
         mod = Model({"conv_num":1, "kernel_num":2, "kernel_len":4, "neuron_num":2, "epochs":2}, self.data_pwm)
         mod.train(self.data_pwm, verbose=True)
         predictions = mod.predict(self.data_pwm, "all")
         self.assertTrue(predictions.shape == (32,2))
+
+        # check kernel output plot for position-wise data
+        folder = gettempdir() + '/'
+        acts = mod.get_max_activations(self.data_pwm, 'all')
+        motif, score = mod.visualize_kernel(acts, self.data_pwm, 0, folder)
+        with Image.open(folder+"additional_features_kernel_0.png") as img:
+            self.assertTrue(img.size == (500,1400))
+        remove(folder+"additional_features_kernel_0.png")
+        remove(folder+"motif_kernel_0.png")
+        remove(folder+"position_kernel_0.png")
+        remove(folder+"activations_kernel_0.png")
