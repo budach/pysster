@@ -82,7 +82,6 @@ class Data:
             Are structures provided as single strings (False) or as PWMs (True)?
         """
         self.meta = {}
-        self.positionwise = OrderedDict()
         self.is_rna_pwm = False
         if isinstance(alphabet, tuple):
             self.is_rna = True
@@ -212,7 +211,7 @@ class Data:
                 self.meta[idx]['data'] = stats.zscore(self.meta[idx]['data'])
 
 
-    def load_additional_positionwise_data(self, class_files, identifier):
+    def load_additional_positionwise_data(self, class_files, identifier, standardize=False):
         """ Add additional numerical features to the network (for each nucleotide in a sequence).
 
         For every position in an input sequence additional numerical data can be added to
@@ -235,8 +234,8 @@ class Data:
         entries in the corresponding fasta file. If you want to add multiple features simply
         call this function multiple times.
 
-        Input features should be standardized (z-scores) prior to adding them to the network, as
-        this tends to improve the predictive performance.
+        Input features should be standardized in some way prior to adding them to the
+        network, as this tends to improve the predictive performance.
 
         In the same way network kernels are visualized as sequence motifs after the network
         training (based on the first 4 rows of the input matrices and using the visualize_kernel()
@@ -249,13 +248,18 @@ class Data:
             A text file (multi-label) or a list of text files (single-label).
         
         identifier: str
-            A short feature name (will be shown in kernel output plots)
+            A short feature name (will be shown in kernel output plots).
+
+        standardize: bool
+            Scale each column according to the interquartile range.
         """
+        if not "positionwise" in dir(self):
+            self.positionwise = OrderedDict()
+        if identifier in self.positionwise:
+            raise RuntimeError("Identifier '{}' already exists.".format(identifier))
         if not isinstance(class_files, list):
             class_files = [class_files]
         len_sequence = self.data[0].shape[0]
-        if identifier in self.positionwise:
-            raise RuntimeError("Identifier '{}' already exists.".format(identifier))
         
         new_data = np.empty((len(self.labels), len_sequence), dtype=np.float32)
         row = 0
@@ -274,7 +278,15 @@ class Data:
             raise RuntimeError("Amount of additional data ({}) doesn't match number of sequences ({}).".format(
                 row, len(self.labels)
             ))
-        self.positionwise[identifier] = new_data
+        if True == standardize:
+            from sklearn.preprocessing import robust_scale
+            self.positionwise[identifier] = robust_scale(new_data, axis=0)
+            if not "positionwise_unscaled" in dir(self):
+                self.positionwise_unscaled = OrderedDict()
+            self.positionwise_unscaled[identifier] = new_data
+        else:
+            self.positionwise[identifier] = new_data
+
 
 
     def get_labels(self, group):
@@ -385,12 +397,16 @@ class Data:
         idx = self._get_idx(group)
         if select is not None:
             idx = idx[select]
+        if "positionwise" in dir(self) and len(self.positionwise) > 0:
+            use_positionwise = True
+        else:
+            use_positionwise = False
         while 1:
             if shuffle:
                 np.random.seed(seed)
                 np.random.shuffle(idx)
             for i in range(0, len(idx), batch_size):
-                if len(self.positionwise) > 0:
+                if use_positionwise:
                     out_data = self._get_positionwise_data(idx, i, batch_size)
                     if meta == True and len(self.meta) > 0:
                         out_data = [out_data, self._get_additional_data(idx, i, batch_size)]
@@ -408,11 +424,12 @@ class Data:
     def _data_gen_no_labels_meta(self, group, batch_size, select):
         idx = self._get_idx(group)[select]
         while 1:
-            for i in range(0, len(idx), batch_size):
-                if len(self.positionwise) == 0:
-                    yield np.array([self.data[x] for x in idx[i:(i+batch_size)]])
-                else:
+            if "positionwise" in dir(self) and len(self.positionwise) > 0:
+                for i in range(0, len(idx), batch_size):
                     yield self._get_positionwise_data(idx, i, batch_size)
+            else:
+                for i in range(0, len(idx), batch_size):
+                    yield np.array([self.data[x] for x in idx[i:(i+batch_size)]])
 
 
     def _get_positionwise_data(self, idx, i, batch_size):
@@ -490,9 +507,13 @@ class Data:
             select = range(len(idx))
         data = []
         for identifier in self.positionwise:
+            if "positionwise_unscaled" in dir(self) and identifier in self.positionwise_unscaled:
+                source = self.positionwise_unscaled[identifier]
+            else:
+                source = self.positionwise[identifier]
             feature = []
             for x in select:
-                feature.append(self.positionwise[identifier][idx[x],:])
+                feature.append(source[idx[x],:])
             data.append(feature)
         return data
 

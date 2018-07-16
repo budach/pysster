@@ -100,7 +100,7 @@ Add additional numerical or categorical features to the network (for each sequen
 ## load\_additional\_positionwise\_data
 
 ``` python
-def load_additional_positionwise_data(self, class_files, identifier)
+def load_additional_positionwise_data(self, class_files, identifier, standardize=False)
 ```
 Add additional numerical features to the network (for each nucleotide in a sequence). 
 
@@ -116,7 +116,7 @@ Add additional numerical features to the network (for each nucleotide in a seque
 
  The number of provided files must match the fasta files provided to the \_\_init\_\_ function (e.g. if you provided a list of 3 files to \_\_init\_\_ you must provide a list of 3 files here as well) and the number of lines in each file must match the number of entries in the corresponding fasta file. If you want to add multiple features simply call this function multiple times. 
 
- Input features should be standardized (z-scores) prior to adding them to the network, as this tends to improve the predictive performance. 
+ Input features should be standardized in some way prior to adding them to the network, as this tends to improve the predictive performance. 
 
  In the same way network kernels are visualized as sequence motifs after the network training (based on the first 4 rows of the input matrices and using the visualize\_kernel() Model function), the rows corresponding to additional features are summarized as line plots as well. 
 
@@ -125,7 +125,8 @@ Add additional numerical features to the network (for each nucleotide in a seque
 | parameter | type | description |
 |:-|:-|:-|
 | class_files | str or [str] | A text file (multi-label) or a list of text files (single-label). |
-| identifier | str | A short feature name (will be shown in kernel output plots) |
+| identifier | str | A short feature name (will be shown in kernel output plots). |
+| standardize | bool | Scale each column according to the interquartile range. |
 ## get\_labels
 
 ``` python

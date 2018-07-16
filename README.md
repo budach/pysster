@@ -11,7 +11,6 @@ pysster is a Python package for training and interpretation of convolutional neu
 * seamless CPU or GPU computation
 
 If you found our tool useful for your work, please cite the accompanying *Bioinformatics* paper ([link](https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/bty222/4962494)).
-
 If you run into bugs, missing documentation or if you have a feature request, feel free to open an issue.
 
 ### Installation
