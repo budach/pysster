@@ -58,6 +58,11 @@ By the time of writing the most recent TensorFlow version is 1.9 and requires CU
 
 ### Changelog
 
+**v1.1.4 - 17. July 2018 (PyPI)**
+* added load_additional_positionwise_data() method to Data objects (add arbitrary numerical features for every sequence position; learned features can be visualized for each kernel using the usual Model methods)
+* the positive class ("class_0") will now be used as the reference class when computing AUCs in binary classifications (previously the negative class was used)
+* some small fixes
+
 **v1.1.3 - 19. March 2018 (PyPI)**
 * added visualize_all_kernels() method to Model objects (visualize all kernels at once + get HTML summary report)
 * it is now possible to maximize the PR-AUC (precision-recall) instead of the ROC-AUC during a grid search

@@ -267,7 +267,7 @@ class Model:
         input sequence yields a number of subsequences that can be used for the construction
         of a motif. Subsequences are only considered if the maximum activation exceeds a certain
         threshold, in this case the maximum of the mean maximum activations per class. Only 
-        subsequences from the top class are used to construct the motif (up to 1000 subsequences).
+        subsequences from the top class are used to construct the motif (up to 750 subsequences).
 
         The histograms show the positions of the maximum activation, i.e. the positions the
         subsequences were extracted from. The activation plots show the mean activation and standard
@@ -346,13 +346,13 @@ class Model:
             else:
                 histograms.append([])
                 mean_acts.append([])
-            # get the sequence logo from sequences from the threshold class (max 1000 sequences)
+            # get the sequence logo from sequences from the threshold class (max 750 sequences)
             if class_id == thresh_class:
                 select = np.in1d(idx_labels, idx_class_seq).nonzero()[0]
-                max_seqs = min(1000, int(len(idx_class)/3))
+                max_seqs = min(750, int(len(idx_class)/3))
                 if len(select) > max_seqs:
-                    value1000 = heapq.nlargest(max_seqs, max_per_class[class_id][select])[-1]
-                    select_seqs = np.where(max_per_class[class_id] >= value1000)[0]
+                    value750 = heapq.nlargest(max_seqs, max_per_class[class_id][select])[-1]
+                    select_seqs = np.where(max_per_class[class_id] >= value750)[0]
                     select = np.in1d(select, select_seqs)
                     sequences = data._get_sequences(class_id, activations["group"], select_seqs)
                     logo = self._plot_motif(data, self._get_subseq(sequences, histograms[-1][select]))
