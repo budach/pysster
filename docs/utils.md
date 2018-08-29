@@ -164,7 +164,7 @@ def plot_roc(labels, predictions, file_path)
 ```
 Get ROC curves for every class. 
 
- In the case of more than two classes the comparions will be performed in a 1 vs. all approach (i.e. you get one curve per class). 
+ In the case of more than two classes the comparisons will be performed in a 1 vs. all approach (i.e. you get one curve per class). 
 
 
 
@@ -180,7 +180,7 @@ def plot_prec_recall(labels, predictions, file_path)
 ```
 Get Precision-Recall curves for every class. 
 
- In the case of more than two classes the comparions will be performed in a 1 vs. rest approach (i.e. you get one curve per class). 
+ In the case of more than two classes the comparisons will be performed in a 1 vs. rest approach (i.e. you get one curve per class). 
 
 
 

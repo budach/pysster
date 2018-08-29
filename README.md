@@ -17,7 +17,7 @@ If you run into bugs, missing documentation or if you have a feature request, fe
 
 pysster is compatible with Python 3.5+ and can be installed from PyPI or GitHub.
 
-**Install latest version from GitHub (recommended):**
+**Install latest version from GitHub:**
 ```sh
 git clone https://github.com/budach/pysster.git
 cd pysster

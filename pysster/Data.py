@@ -179,7 +179,7 @@ class Data:
         # load raw data
         idx = len(self.meta)
         self.meta[idx] = {"data":[], "is_categorical": is_categorical}
-        for class_id, file_name in enumerate(class_files):
+        for _class_id, file_name in enumerate(class_files):
             handle = io.get_handle(file_name, "rt")
             if True == is_categorical:
                 for line in handle:
@@ -200,7 +200,7 @@ class Data:
                     len(categories)
                 ))
             mapping = {val: i for i, val in enumerate(categories)}
-            for i, val in enumerate(self.meta[idx]['data']):
+            for i, _val in enumerate(self.meta[idx]['data']):
                 one_hot = np.zeros(len(categories), dtype=np.uint8)
                 one_hot[mapping[self.meta[idx]['data'][i]]] = 1
                 self.meta[idx]['data'][i] = one_hot

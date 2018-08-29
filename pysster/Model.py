@@ -719,7 +719,7 @@ class Model:
 
 
     def _get_optimized_input(self, model, data, layer_name, node_index, boundary, lr, steps, colors_sequence, colors_structure):
-        for attempt in range(5):
+        for _attempt in range(5):
             input_data = np.random.uniform(-boundary, +boundary,
                                            (1, self.params["input_shape"][0], self.params["input_shape"][1]))
             input_data, success = self._optimize_input(model, layer_name, node_index, input_data, lr, steps)

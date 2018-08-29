@@ -149,7 +149,7 @@ class Motif:
             if char in self.colors:
                 #img_chars[char] = img_chars[char].convert('RGBA')
                 data = np.array(img_chars[char])
-                red, green, blue, alpha = data.T
+                red, green, blue, _alpha = data.T
                 not_white = (red != 255) & (blue != 255) & (green != 255)
                 data[..., :-1][not_white.T] = self.colors[char]
                 img_chars[char] = Image.fromarray(data)
