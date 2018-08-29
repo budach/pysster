@@ -234,7 +234,7 @@ def _predict_and_annotate(fasta_entry, predict_function):
 
 
 def auROC(labels, predictions):
-    from sklearn.metrics import precision_recall_fscore_support, auc, roc_curve
+    from sklearn.metrics import auc, roc_curve
     fpr, tpr, _ = roc_curve(labels, predictions)
     return fpr, tpr, auc(fpr, tpr)
 
@@ -303,7 +303,7 @@ def get_performance_report(labels, predictions):
     out.append('\n')
     out.append(formatter.format(
         "weighted avg",
-        *np.sum(report[:,0:-1] * report[:,-1, np.newaxis], axis=0)/labels.shape[0],
+        *np.sum(report[:,0:-1] * report[:,-1, np.newaxis], axis=0)/int(sum(report[:,-1])),
         " "
     ))
     out.append('\n')
@@ -314,7 +314,7 @@ def get_performance_report(labels, predictions):
 def plot_roc(labels, predictions, file_path):
     """ Get ROC curves for every class.
 
-    In the case of more than two classes the comparions will be performed in a 1 vs. all
+    In the case of more than two classes the comparisons will be performed in a 1 vs. all
     approach (i.e. you get one curve per class).
 
     Parameters
@@ -354,7 +354,7 @@ def plot_roc(labels, predictions, file_path):
 def plot_prec_recall(labels, predictions, file_path):
     """ Get Precision-Recall curves for every class.
 
-    In the case of more than two classes the comparions will be performed in a 1 vs. rest
+    In the case of more than two classes the comparisons will be performed in a 1 vs. rest
     approach (i.e. you get one curve per class).
 
     Parameters

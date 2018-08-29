@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name = 'pysster',
-    version = '1.1.4',
+    version = '1.1.5',
     description = 'a Sequence/STructure classifiER for biological sequences',
     url = 'https://github.com/budach/pysster',
     author = 'Stefan Budach',
