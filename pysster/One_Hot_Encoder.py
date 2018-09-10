@@ -38,7 +38,7 @@ class One_Hot_Encoder:
             A numpy array with shape (len(sequence), len(alphabet)).
         """
         one_hot = np.zeros((len(sequence), len(self.table)), np.uint8)
-        one_hot[np.arange(len(sequence)), [self.table[x] for x in sequence]] = 1
+        one_hot[np.arange(len(sequence)), np.fromiter(map(self.table.get, sequence), np.uint32)] = 1
         return one_hot
 
     def decode(self, one_hot):
@@ -54,4 +54,4 @@ class One_Hot_Encoder:
         sequence: str
             The sequence that is represented by the one-hot matrix.
         """
-        return ''.join(self.table_rev[x] for x in np.argmax(one_hot, axis=1))
+        return ''.join(map(self.table_rev.get, np.argmax(one_hot, axis=1)))
