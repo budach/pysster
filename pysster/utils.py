@@ -9,7 +9,7 @@ from subprocess import check_output, call
 from os.path import dirname
 import forgi.graph.bulge_graph as cgb
 import numpy as np
-from shutil import which
+from shutil import which, move
 from collections import Counter
 from os import remove
 from tempfile import gettempdir
@@ -346,8 +346,7 @@ def plot_roc(labels, predictions, file_path):
             ax.plot(fpr, tpr, linewidth = 2.2, color = colors[x], label = label)
     ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0., framealpha=1)
     fig.savefig(file_path, bbox_inches = 'tight')
-    fig.clf()
-    plt.close('all')
+    plt.close(fig)
     matplotlib.rcParams.update(matplotlib.rcParamsDefault)
 
 
@@ -386,8 +385,7 @@ def plot_prec_recall(labels, predictions, file_path):
             ax.plot(recall, precision, linewidth = 2.2, color = colors[x], label = label)
     ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0., framealpha=1)
     fig.savefig(file_path, bbox_inches = 'tight')
-    fig.clf()
-    plt.close('all')
+    plt.close(fig)
     matplotlib.rcParams.update(matplotlib.rcParamsDefault)
 
 
@@ -493,16 +491,17 @@ def plot_motif_summary(position_max, mean_acts, kernel, file_path):
         for class_num in range(classes_this_plot):
             class_idx += 1
             # histograms
-            ax.flat[class_num].hist(position_max[classes[class_idx]], 
+            ax.flat[class_num].set_ylim((0, ylim_hist))
+            ax.flat[class_num].hist(position_max[classes[class_idx]], histtype="stepfilled",
                                     bins = xlim, range = (0, xlim))
             ax.flat[class_num].set_xlabel("sequence position")
             ax.flat[class_num].set_ylabel("counts")
-            ax.flat[class_num].set_ylim((0, ylim_hist))
             ax.flat[class_num].set_title("kernel {}, class_{}, (n = {})".format(
             kernel, classes[class_idx], len(position_max[classes[class_idx]])
             ))
             _hide_top_right(ax.flat[class_num])
             # mean activations
+            ax.flat[class_num + classes_this_plot].set_ylim((0, ylim_mean))
             ax.flat[class_num + classes_this_plot].fill_between(list(range(1, xlim)),
                                                                 mean_acts[classes[class_idx]][0] - mean_acts[classes[class_idx]][1],
                                                                 mean_acts[classes[class_idx]][0] + mean_acts[classes[class_idx]][1],
@@ -512,20 +511,21 @@ def plot_motif_summary(position_max, mean_acts, kernel, file_path):
                                                         linewidth = 5.0)
             ax.flat[class_num + classes_this_plot].set_xlabel("sequence position")
             ax.flat[class_num + classes_this_plot].set_ylabel("activation")
-            ax.flat[class_num + classes_this_plot].set_ylim((0, ylim_mean))
             _hide_top_right(ax.flat[class_num + classes_this_plot])
-        plt.tight_layout()
+        fig.tight_layout()
         files.append("{}/plotsum{}.png".format(gettempdir(), plot_id))
         fig.savefig(files[-1])
-        fig.clf()
-        plt.close('all')
+        plt.close(fig) # fig.clf() before close() seems to release memory faster
     matplotlib.rcParams.update(matplotlib.rcParamsDefault)
-    images = []
-    for file_name in files:
-        images.append(Image.open(file_name))
-    combine_images(images, file_path)
-    for file_name in files:
-        remove(file_name)
+    if len(files) == 1:
+        move(files[0], file_path)
+    else:
+        images = []
+        for file_name in files:
+            images.append(Image.open(file_name))
+        combine_images(images, file_path)
+        for file_name in files:
+            remove(file_name)
 
 
 def plot_violins(data, kernel, file_path):
@@ -551,8 +551,7 @@ def plot_violins(data, kernel, file_path):
     fig.subplots_adjust(bottom=0.2)
     plt.tight_layout()
     fig.savefig(file_path)
-    fig.clf()
-    plt.close('all')
+    plt.close(fig)
     matplotlib.rcParams.update(matplotlib.rcParamsDefault)
 
 
@@ -693,6 +692,5 @@ def plot_positionwise(add_data, identifiers, file_path):
         _hide_top_right(ax[i])
     plt.tight_layout()
     fig.savefig(file_path)
-    fig.clf()
-    plt.close('all')
+    plt.close(fig)
     matplotlib.rcParams.update(matplotlib.rcParamsDefault)
