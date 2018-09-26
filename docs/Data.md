@@ -73,11 +73,11 @@ Randomly split the data into training, validation and test set.
 ## load\_additional\_data
 
 ``` python
-def load_additional_data(self, class_files, is_categorical=False, standardize=False)
+def load_additional_data(self, class_files, is_categorical=False, categories=None, standardize=False)
 ```
 Add additional numerical or categorical features to the network (for each sequence as a whole). 
 
- For every input sequence additional data can be added to the network (e.g. location, average sequence conservation, etc.). The data will be concatenated to the input of the first dense layer (i.e. additional neurons in the first dense layer will be created). Input files are text files and must contain one value per line (values can be strings if the data is categorical), e.g.: 
+ For every input sequence additional data can be added to the network (e.g. location, average sequence conservation, etc.). The data will be concatenated to the input of the first dense layer (i.e. additional neurons in the first dense layer will be created). Input files are text files and must contain one value per line, e.g.: 
 
   0.679  
   0.961  
@@ -96,6 +96,7 @@ Add additional numerical or categorical features to the network (for each sequen
 |:-|:-|:-|
 | class_files | str or [str] | A text file (multi-label) or a list of text files (single-label). |
 | is_categorical | bool | Is the provided data categorical or numerical? |
+| categories | [str] | A list containing all possible categories (only needed if is_categorial == True). |
 | standardize | bool | Should the z-score be computed for numerical data? |
 ## load\_additional\_positionwise\_data
 

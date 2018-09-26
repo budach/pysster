@@ -136,14 +136,13 @@ class Data:
         self.splits = {"train": splits[0], "val": splits[1], "test": splits[2]}
 
 
-    def load_additional_data(self, class_files, is_categorical=False, standardize=False):
+    def load_additional_data(self, class_files, is_categorical=False, categories=None, standardize=False):
         """ Add additional numerical or categorical features to the network (for each sequence as a whole).
 
         For every input sequence additional data can be added to the network (e.g. location,
         average sequence conservation, etc.). The data will be concatenated to the input of the
         first dense layer (i.e. additional neurons in the first dense layer will be created). Input
-        files are text files and must contain one value per line (values can be strings if the data
-        is categorical), e.g.:
+        files are text files and must contain one value per line, e.g.:
         
         '0.679
         '0.961
@@ -170,7 +169,10 @@ class Data:
         
         is_categorical: bool
             Is the provided data categorical or numerical?
-        
+
+        categories: [str]
+            A list containing all possible categories (only needed if is_categorial == True).
+
         standardize: bool
             Should the z-score be computed for numerical data?
         """
@@ -194,11 +196,9 @@ class Data:
             ))
         # one hot encode categorical data
         if True == is_categorical:
-            categories = set(self.meta[idx]['data'])
-            if len(categories) > 256:
-                raise RuntimeError("Too many categories ({}). A maximum of 256 are supported.".format(
-                    len(categories)
-                ))
+            if not isinstance(categories, list):
+                raise RuntimeError("is_categorical set to True, but no categories list provided.")
+            categories = sorted(categories)
             mapping = {val: i for i, val in enumerate(categories)}
             for i, _val in enumerate(self.meta[idx]['data']):
                 one_hot = np.zeros(len(categories), dtype=np.uint8)

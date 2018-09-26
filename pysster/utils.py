@@ -594,7 +594,6 @@ def _get_colors(x):
 
 def _plot_heatmap(file_path, data, class_id, classes = None):
     import seaborn as sns
-    old_params = matplotlib.rcParams
     _set_sns_context(data.shape[1])
     n_classes = len(set(class_id))
     palette = _get_colors(n_classes)
@@ -619,8 +618,6 @@ def _plot_heatmap(file_path, data, class_id, classes = None):
     plt.savefig(file_path, bbox_inches = 'tight')
     plt.close('all')
     sns.reset_orig()
-    sns.set()
-    matplotlib.rcParams.update(old_params)
 
 
 def combine_images(images, output_file):

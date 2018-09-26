@@ -29,7 +29,7 @@ class Test_Data(unittest.TestCase):
         self.data_rna_dot = Data(rna_files, ("ACGU", "()."))
         self.data_pwm = Data(rna_pwm, ('ACGU', '().'), structure_pwm=True)
         self.data_pwm.load_additional_data(rna_pwm_add, is_categorical=False)
-        self.data_pwm.load_additional_data(rna_pwm_add, is_categorical=True)
+        self.data_pwm.load_additional_data(rna_pwm_add, is_categorical=True, categories=[str(x) for x in range(1,17)])
         self.data_pwm.load_additional_positionwise_data(rna_pwm_pos_feat1, "feat1")
         self.data_pwm.load_additional_positionwise_data(rna_pwm_pos_feat2, "feat2")
 
