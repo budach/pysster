@@ -81,7 +81,7 @@ class Data:
         structure_pwm: bool
             Are structures provided as single strings (False) or as PWMs (True)?
         """
-        self.meta = {}
+        self.meta = OrderedDict()
         self.is_rna_pwm = False
         if isinstance(alphabet, tuple):
             self.is_rna = True

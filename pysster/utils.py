@@ -347,7 +347,6 @@ def plot_roc(labels, predictions, file_path):
     ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0., framealpha=1)
     fig.savefig(file_path, bbox_inches = 'tight')
     plt.close(fig)
-    matplotlib.rcParams.update(matplotlib.rcParamsDefault)
 
 
 def plot_prec_recall(labels, predictions, file_path):
@@ -386,7 +385,6 @@ def plot_prec_recall(labels, predictions, file_path):
     ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0., framealpha=1)
     fig.savefig(file_path, bbox_inches = 'tight')
     plt.close(fig)
-    matplotlib.rcParams.update(matplotlib.rcParamsDefault)
 
 
 
@@ -477,6 +475,7 @@ def plot_motif_summary(position_max, mean_acts, kernel, file_path):
             ylim_hist = max(ylim_hist, Counter(hist).most_common(1)[0][1])
             ylim_mean = max(ylim_mean, max(mean_acts[i][0] + mean_acts[i][1]))
     xlim = len(mean_acts[classes[0]][0]) + 1
+    old_fontsize = matplotlib.rcParams['font.size']
     matplotlib.rcParams.update({'font.size': 30})
     files = []
     n_per_plot = 3
@@ -516,7 +515,7 @@ def plot_motif_summary(position_max, mean_acts, kernel, file_path):
         files.append("{}/plotsum{}.png".format(gettempdir(), plot_id))
         fig.savefig(files[-1])
         plt.close(fig) # fig.clf() before close() seems to release memory faster
-    matplotlib.rcParams.update(matplotlib.rcParamsDefault)
+    matplotlib.rcParams.update({'font.size': old_fontsize})
     if len(files) == 1:
         move(files[0], file_path)
     else:
@@ -529,6 +528,7 @@ def plot_motif_summary(position_max, mean_acts, kernel, file_path):
 
 
 def plot_violins(data, kernel, file_path):
+    old_fontsize = matplotlib.rcParams['font.size']
     matplotlib.rcParams.update({'font.size': 15})
     num_plots = len(data)
     labels = ["class_{}".format(x) for x in range(num_plots)]
@@ -538,7 +538,7 @@ def plot_violins(data, kernel, file_path):
     ax.set_title("Activations, kernel {}".format(kernel))
     ax.set_ylabel("max activations")
     parts = ax.violinplot(data, showmeans = True, showextrema = True)
-    ax.set_ylim(ymin = 0) 
+    ax.set_ylim(bottom = 0) 
     parts['cmeans']._linewidths = [2]
     parts['cmins']._linewidths = [2]
     parts['cmaxes']._linewidths = [2]
@@ -552,7 +552,7 @@ def plot_violins(data, kernel, file_path):
     plt.tight_layout()
     fig.savefig(file_path)
     plt.close(fig)
-    matplotlib.rcParams.update(matplotlib.rcParamsDefault)
+    matplotlib.rcParams.update({'font.size': old_fontsize})
 
 
 def plot_motif(logo, file_path, colors_sequence, colors_structure):
@@ -594,6 +594,7 @@ def _get_colors(x):
 
 def _plot_heatmap(file_path, data, class_id, classes = None):
     import seaborn as sns
+    old_params = matplotlib.rcParams
     _set_sns_context(data.shape[1])
     n_classes = len(set(class_id))
     palette = _get_colors(n_classes)
@@ -603,8 +604,8 @@ def _plot_heatmap(file_path, data, class_id, classes = None):
                        figsize = (30,25), row_cluster = True, col_cluster = True,
                        linewidths = 0, col_colors = colors, robust = True,
                        z_score = 0, cbar_kws={"ticks":[-1.5,0,+1.5]})
-    g.ax_col_dendrogram.set_xlim([0,0])
-    g.ax_col_dendrogram.set_ylim([0,0])
+    g.ax_col_dendrogram.set_xlim([0,1e-10])
+    g.ax_col_dendrogram.set_ylim([0,1e-10])
     plt.setp(g.ax_heatmap.get_yticklabels(), rotation=0)
     sns.set(font_scale=2.8)
     if classes == None:
@@ -619,7 +620,7 @@ def _plot_heatmap(file_path, data, class_id, classes = None):
     plt.close('all')
     sns.reset_orig()
     sns.set()
-    matplotlib.rcParams.update(matplotlib.rcParamsDefault)
+    matplotlib.rcParams.update(old_params)
 
 
 def combine_images(images, output_file):
@@ -672,6 +673,7 @@ def html_report(sorted_idx, scores, folder, class_num, size=None):
 
 
 def plot_positionwise(add_data, identifiers, file_path):
+    old_fontsize = matplotlib.rcParams['font.size']
     matplotlib.rcParams.update({"font.size": 30})
     x = list(range(1, add_data[0][0].shape[0]+1))
     fig, ax = plt.subplots(nrows=len(add_data), ncols=1,
@@ -693,4 +695,4 @@ def plot_positionwise(add_data, identifiers, file_path):
     plt.tight_layout()
     fig.savefig(file_path)
     plt.close(fig)
-    matplotlib.rcParams.update(matplotlib.rcParamsDefault)
+    matplotlib.rcParams.update({"font.size": old_fontsize})
