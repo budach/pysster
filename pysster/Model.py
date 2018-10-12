@@ -349,7 +349,7 @@ class Model:
             # get the sequence logo from sequences from the threshold class (max 750 sequences)
             if class_id == thresh_class:
                 select = np.in1d(idx_labels, idx_class_seq).nonzero()[0]
-                max_seqs = min(750, int(len(idx_class)/3))
+                max_seqs = max(min(750, int(len(idx_class)/3)), 1)
                 if len(select) > max_seqs:
                     value750 = heapq.nlargest(max_seqs, max_per_class[class_id][select])[-1]
                     select_seqs = np.where(max_per_class[class_id] >= value750)[0]

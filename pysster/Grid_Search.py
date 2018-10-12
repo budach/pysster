@@ -112,5 +112,5 @@ class Grid_Search:
         format_str += "{:.5f}\n"
         table += " ".join(self.params.keys()) + " {}\n".format(metric_name)
         for tup in order:
-            table += format_str.format(*(self.candidates[tup[1]][key] for key in self.params), tup[0])
+            table += format_str.format(*(str(self.candidates[tup[1]][key]) for key in self.params), tup[0])
         return table
