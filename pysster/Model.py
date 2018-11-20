@@ -617,7 +617,8 @@ class Model:
             # add additional input to the first dense layer if available
             if x == 0 and self.params["additional_input_length"] > 0:
                 self.additional_input = Input(shape=(self.params["additional_input_length"],))
-                self.cnn = concatenate([self.cnn, self.additional_input])
+                self.additional_dropout = Dropout(rate = self.params["dropout_input"])(self.additional_input)
+                self.cnn = concatenate([self.cnn, self.additional_dropout])
             self.cnn = Dense(units = self.params["neuron_num"],
                              kernel_initializer = RandomUniform(),
                              kernel_constraint = max_norm(self.params["kernel_constraint"]),
