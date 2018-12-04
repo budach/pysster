@@ -26,7 +26,7 @@ The Model class represents a convolutional neural network and provides functions
   | kernel\_constraint | 3       | max-norm weight constraint |  
  
 
- Not all parameters are equally important when doing a hyperparameter grid search. The ones with a strong influence are usually conv\_num (range 1-3), kernel\_num (range 50-300), neuron\_num (50-1000) and the dropout parameters (around 0.1 for the input and 0.2-0.6 otherwise). 
+ Not all parameters are equally important when doing a hyperparameter grid search. The ones with a strong influence are usually conv\_num (range 1-3), kernel\_num (range 50-300) and the dropout parameters (around 0.1 for the input and 0.2-0.6 otherwise). 
 
  Note: with each convolutional/pooling stack the length of your sequences will be reduced. E.g. starting with sequences of length 300 and kernels of length 25  will result in sequences of length 300-25+1=276 after the first convolutional layer. A default pooling layer will halve this number further to 138. If you use too many convolutional/pooling stacks you will get an error, because your sequence length will be <= 0. 
 

@@ -60,8 +60,8 @@ class Model:
     #| kernel_constraint | 3       | max-norm weight constraint |
 
     Not all parameters are equally important when doing a hyperparameter grid search. The ones
-    with a strong influence are usually conv_num (range 1-3), kernel_num (range 50-300), 
-    neuron_num (50-1000) and the dropout parameters (around 0.1 for the input and 0.2-0.6 otherwise).
+    with a strong influence are usually conv_num (range 1-3), kernel_num (range 50-300) and the 
+    dropout parameters (around 0.1 for the input and 0.2-0.6 otherwise).
 
     Note: with each convolutional/pooling stack the length of your sequences will be reduced.
     E.g. starting with sequences of length 300 and kernels of length 25  will result in sequences
