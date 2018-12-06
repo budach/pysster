@@ -38,7 +38,7 @@ pip3 uninstall tensorflow
 pip3 install tensorflow-gpu
 ```
 
-By the time of writing the most recent TensorFlow version is 1.9 and requires CUDA 9 and cuDNN 7. You can always check the required versions in the TensorFlow [release notes](https://github.com/tensorflow/tensorflow/releases).
+At the time of writing the most recent TensorFlow version is 1.12 and the pre-built binary requires CUDA 9 and cuDNN 7.2. You can always check the required versions in the TensorFlow [release notes](https://github.com/tensorflow/tensorflow/releases).
 
 
 ### Documentation
@@ -58,13 +58,19 @@ By the time of writing the most recent TensorFlow version is 1.9 and requires CU
 
 ### Changelog
 
+**v1.2.0 - 6. December 2018 (PyPI)**
+* **breaking change:** the *load_additional_data()* method now requires a new paramater *categories* containing all possible categories when adding categorical data
+* input dropout is now also applied to data loaded via *load_additional_data()*
+* performance improvements when creating large *Data* objects and when visualizing kernels
+* fixed a crash when printing grid search summaries involving RNN layers
+
 **v1.1.4 - 17. July 2018 (PyPI)**
-* added load_additional_positionwise_data() method to Data objects (add arbitrary numerical features for every sequence position; learned features can be visualized for each kernel using the usual Model methods)
+* added *load_additional_positionwise_data(*) method to *Data* objects (add arbitrary numerical features for every sequence position; learned features can be visualized for each kernel using the usual *Model* methods)
 * the positive class ("class_0") will now be used as the reference class when computing AUCs in binary classifications (previously the negative class was used)
 * some small fixes
 
 **v1.1.3 - 19. March 2018 (PyPI)**
-* added visualize_all_kernels() method to Model objects (visualize all kernels at once + get HTML summary report)
+* added *visualize_all_kernels()* method to Model objects (visualize all kernels at once + get HTML summary report)
 * it is now possible to maximize the PR-AUC (precision-recall) instead of the ROC-AUC during a grid search
 * changed default color scheme for ACGT and ACGU alphabets to match conventions
-* fixed a bug that prevented Data objects from being reproducible
+* fixed a bug that prevented *Data* objects from being reproducible
