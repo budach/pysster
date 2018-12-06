@@ -59,7 +59,7 @@ At the time of writing the most recent TensorFlow version is 1.12 and the pre-bu
 ### Changelog
 
 **v1.2.0 - 6. December 2018 (PyPI)**
-* **breaking change:** the *load_additional_data()* method now requires a new paramater *categories* containing all possible categories when adding categorical data
+* **breaking change:** the *load_additional_data()* method now requires a new parameter *categories* containing all possible categories when adding categorical data
 * input dropout is now also applied to data loaded via *load_additional_data()*
 * performance improvements when creating large *Data* objects and when visualizing kernels
 * fixed a crash when printing grid search summaries involving RNN layers
