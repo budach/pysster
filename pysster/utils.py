@@ -112,9 +112,10 @@ def parse_fasta(handle, joiner = ""):
 def annotate_structures(input_file, output_file):
     """ Annotate secondary structure predictions with structural contexts.
 
-    Given dot-bracket strings this function will annote every character
-    as either 'H' (hairpin), 'S' (stem), 'I' (internal loop/bulge) or 'M' (multi loop). The input file
-    must be a fasta formatted file and each sequence and structure must span a single line:
+    Given dot-bracket strings this function will annote every character as
+    either 'H' (hairpin), 'S' (stem), 'I' (internal loop/bulge), 'M' (multi loop), 'F' (5-prime)
+    or 'T' (3-prime). The input file must be a fasta formatted file and each sequence and structure
+    must span a single line:
 
     '>header
     'CCCCAUAGGGG
