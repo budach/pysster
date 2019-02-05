@@ -578,7 +578,7 @@ class Model:
 
 
     def _add_rnn_layer(self, rnn, return_sequences, x):
-        if self.params["rnn_bidirectional"] == False:
+        if self.params["rnn_bidirectional"][x] == False:
             self.cnn = rnn(units = self.params["rnn_units"][x],
                            dropout = self.params["rnn_dropout_input"][x],
                            recurrent_dropout = self.params["rnn_dropout_recurrent"][x],
