@@ -401,10 +401,10 @@ class Data:
             use_positionwise = True
         else:
             use_positionwise = False
+        if shuffle:
+            np.random.seed(seed)
+            np.random.shuffle(idx)
         while 1:
-            if shuffle:
-                np.random.seed(seed)
-                np.random.shuffle(idx)
             for i in range(0, len(idx), batch_size):
                 if use_positionwise:
                     out_data = self._get_positionwise_data(idx, i, batch_size)
