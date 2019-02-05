@@ -28,9 +28,9 @@ class Test_Model(unittest.TestCase):
 
     def test_model_init(self):
         self.assertTrue(self.m1.params["conv_num"] == 1)
-        self.assertTrue(self.m1.params["kernel_num"] == 3)
-        self.assertTrue(self.m1.params["kernel_len"] == 5)
-        self.assertTrue(self.m1.params["neuron_num"] == 2)
+        self.assertTrue(self.m1.params["kernel_num"] == (3,))
+        self.assertTrue(self.m1.params["kernel_len"] == (5,))
+        self.assertTrue(self.m1.params["neuron_num"] == (2,))
         self.assertTrue(self.m1.params["activation"] == "sigmoid")
         self.assertTrue(self.m1.model.layers[2].get_weights()[0].shape == (5,12,3))
         self.assertTrue(np.allclose(self.m1.model.layers[2].get_weights()[0], 

@@ -130,6 +130,7 @@ class Model:
             ''.join(random.choice(string.ascii_uppercase) for _ in range(15))
         )
         self._check_params()
+        self._expand_params()
         if self.params["dense_num"] == 0 and len(data.meta) > 0:
             print("Warning: model doesn't have dense layers, the available additional data are not used!")
         self._prepare_callbacks()
@@ -413,7 +414,7 @@ class Model:
             folder += "/"
         # create plots for each kernel
         logos, scores = [], []
-        for kernel in range(self.params["kernel_num"]):
+        for kernel in range(self.params["kernel_num"][0]):
             logo, score = self.visualize_kernel(activations, data, kernel, folder,
                                                 colors_sequence, colors_structure)
             logos.append(logo)
@@ -561,18 +562,33 @@ class Model:
             raise RuntimeError("Input shape not specified.")
 
 
-    def _add_rnn_layer(self, rnn, return_sequences):
+    def _expand_params(self):
+        dependencies = {
+            "conv_num": ["kernel_num", "kernel_len", "pool_size", "pool_stride", "dropout_conv"],
+            "dense_num": ["neuron_num", "dropout_dense"],
+            "rnn_num": ["rnn_units", "rnn_bidirectional", "rnn_dropout_recurrent", "rnn_dropout_input"]
+        }
+        for layer, to_expand in dependencies.items():
+            for param in to_expand:
+                if isinstance(self.params[param], tuple):
+                    if len(self.params[param]) != self.params[layer]:
+                        raise RuntimeError("'{}' not provided for all layers.".format(param))
+                else:
+                    self.params[param] = tuple([self.params[param]] * self.params[layer])
+
+
+    def _add_rnn_layer(self, rnn, return_sequences, x):
         if self.params["rnn_bidirectional"] == False:
-            self.cnn = rnn(units = self.params["rnn_units"],
-                           dropout = self.params["rnn_dropout_input"],
-                           recurrent_dropout = self.params["rnn_dropout_recurrent"],
+            self.cnn = rnn(units = self.params["rnn_units"][x],
+                           dropout = self.params["rnn_dropout_input"][x],
+                           recurrent_dropout = self.params["rnn_dropout_recurrent"][x],
                            kernel_initializer = RandomUniform(),
                            kernel_constraint = max_norm(self.params["kernel_constraint"]),
                            return_sequences = return_sequences)(self.cnn)
         else:
-            self.cnn = Bidirectional(rnn(units = self.params["rnn_units"],
-                                         dropout = self.params["rnn_dropout_input"],
-                                         recurrent_dropout = self.params["rnn_dropout_recurrent"],
+            self.cnn = Bidirectional(rnn(units = self.params["rnn_units"][x],
+                                         dropout = self.params["rnn_dropout_input"][x],
+                                         recurrent_dropout = self.params["rnn_dropout_recurrent"][x],
                                          kernel_initializer = RandomUniform(),
                                          kernel_constraint = max_norm(self.params["kernel_constraint"]),
                                          return_sequences = return_sequences))(self.cnn)
@@ -588,15 +604,15 @@ class Model:
 
         # convolutional/pooling block
         for x in range(self.params["conv_num"]):
-            self.cnn = Conv1D(filters = self.params["kernel_num"],
-                              kernel_size = self.params["kernel_len"],
+            self.cnn = Conv1D(filters = self.params["kernel_num"][x],
+                              kernel_size = self.params["kernel_len"][x],
                               padding = "valid",
                               kernel_initializer = RandomUniform(),
                               kernel_constraint = max_norm(self.params["kernel_constraint"]),
                               activation = "relu")(self.cnn)
-            self.cnn = MaxPooling1D(pool_size = self.params["pool_size"],
-                                    strides = self.params["pool_stride"])(self.cnn)
-            self.cnn = Dropout(rate = self.params["dropout_conv"])(self.cnn)
+            self.cnn = MaxPooling1D(pool_size = self.params["pool_size"][x],
+                                    strides = self.params["pool_stride"][x])(self.cnn)
+            self.cnn = Dropout(rate = self.params["dropout_conv"][x])(self.cnn)
 
         # recurrent block
         if self.params["rnn_type"] != None:
@@ -607,8 +623,8 @@ class Model:
             else:
                 raise ValueError("rnn_type '{}' not supported.".format(self.params["rnn_type"]))
             for x in range(self.params["rnn_num"]-1):
-                self._add_rnn_layer(rnn, return_sequences=True)
-            self._add_rnn_layer(rnn, return_sequences=False)
+                self._add_rnn_layer(rnn, True, x)
+            self._add_rnn_layer(rnn, False, self.params["rnn_num"]-1)
         else:
             self.cnn = Flatten()(self.cnn)
         
@@ -619,11 +635,11 @@ class Model:
                 self.additional_input = Input(shape=(self.params["additional_input_length"],))
                 self.additional_dropout = Dropout(rate = self.params["dropout_input"])(self.additional_input)
                 self.cnn = concatenate([self.cnn, self.additional_dropout])
-            self.cnn = Dense(units = self.params["neuron_num"],
+            self.cnn = Dense(units = self.params["neuron_num"][x],
                              kernel_initializer = RandomUniform(),
                              kernel_constraint = max_norm(self.params["kernel_constraint"]),
                              activation = "relu")(self.cnn)
-            self.cnn = Dropout(rate = self.params["dropout_dense"])(self.cnn)
+            self.cnn = Dropout(rate = self.params["dropout_dense"][x])(self.cnn)
 
         # output
         self.cnn = Dense(units = self.params["class_num"],
@@ -673,7 +689,7 @@ class Model:
     def _get_subseq(self, sequences, histogram):
         subseqs = []
         for i, seq in enumerate(sequences):
-            subseqs.append(seq[histogram[i]:histogram[i] + self.params["kernel_len"]])
+            subseqs.append(seq[histogram[i]:histogram[i] + self.params["kernel_len"][0]])
         return subseqs
 
 
