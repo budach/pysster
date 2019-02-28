@@ -7,7 +7,7 @@ import pickle
 from itertools import groupby, repeat
 from subprocess import check_output, call
 from os.path import dirname
-import forgi.graph.bulge_graph as cgb
+import forgi.graph.bulge_graph as fgb
 import numpy as np
 from shutil import which, move
 from collections import Counter
@@ -139,8 +139,7 @@ def annotate_structures(input_file, output_file):
     handle_out = get_handle(output_file, "wt")
     for header, entry in parse_fasta(handle_in, "_"):
         entry = entry.split("_")
-        bg = cgb.BulgeGraph()
-        bg.from_dotbracket(entry[1].split()[0])
+        bg = fgb.BulgeGraph.from_dotbracket(entry[1].split()[0])
         handle_out.write(">{}\n".format(header))
         handle_out.write("{}\n{}\n".format(entry[0], bg.to_element_string().upper()))
     handle_in.close()
@@ -229,8 +228,7 @@ def _predict_binary(fasta_entry):
 
 def _predict_and_annotate(fasta_entry, predict_function):
     predict_entry = predict_function(fasta_entry)
-    bg = cgb.BulgeGraph()
-    bg.from_dotbracket(predict_entry[2])
+    bg = fgb.BulgeGraph.from_dotbracket(predict_entry[2])
     return (predict_entry[0], predict_entry[1], bg.to_element_string().upper())
 
 
