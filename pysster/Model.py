@@ -247,7 +247,7 @@ class Model:
 
 
     def visualize_kernel(self, activations, data, kernel, folder, colors_sequence={}, colors_structure={}):
-        """ Get a number of visualizations and an importane score for a convolutional kernel.
+        """ Get a number of visualizations and an importance score for a convolutional kernel.
 
         This function creates three (or four) output files: 1) a sequence(/structure) motif that the
         kernel has learned to detect, 2) a histogram/activation plot showing the 

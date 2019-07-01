@@ -53,7 +53,7 @@ The Model class represents a convolutional neural network and provides functions
 | train | Train the model. |
 | predict | Get model predictions for a subset of a Data object. |
 | get\_max\_activations | Get the network output of the first convolutional layer. |
-| visualize\_kernel | Get a number of visualizations and an importane score for a convolutional kernel. |
+| visualize\_kernel | Get a number of visualizations and an importance score for a convolutional kernel. |
 | visualize\_all\_kernels | Get visualizations for all first-layer convolutional kernels. |
 | plot\_clustering | Perform a hierarchical clustering on both sequences and kernels. |
 | visualize\_optimized\_inputs | Visualize what every node in the network has learned. |
@@ -140,7 +140,7 @@ Get the network output of the first convolutional layer.
 ``` python
 def visualize_kernel(self, activations, data, kernel, folder, colors_sequence={}, colors_structure={})
 ```
-Get a number of visualizations and an importane score for a convolutional kernel. 
+Get a number of visualizations and an importance score for a convolutional kernel. 
 
  This function creates three (or four) output files: 1) a sequence(/structure) motif that the kernel has learned to detect, 2) a histogram/activation plot showing the positional enrichment of said motif for every class, 3) violin plots showing the maximum activation distributions for every class (higher values == better, this is a proxy for global class enrichment) and 4), in case additional position-wise features are used, a line plot for each feature showing mean and standard deviation (see load\_additional\_positionwise\_data() in the Data API). 
 
