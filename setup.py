@@ -18,7 +18,8 @@ setup(
         'h5py',
         'logging_exceptions',
         'Pillow',
-        'forgi'
+        'forgi',
+        'fastcluster'
     ],
     packages = ['pysster'],
     python_requires = '>=3.5',
