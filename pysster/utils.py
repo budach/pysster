@@ -232,6 +232,28 @@ def _predict_and_annotate(fasta_entry, predict_function):
     return (predict_entry[0], predict_entry[1], bg.to_element_string().upper())
 
 
+def predict_structures_plfold(input_file, output_file):
+    handle_in = get_handle(input_file, "rt")
+    handle_out = get_handle(output_file, "wt")
+    for header, seq in parse_fasta(handle_in):
+        # get RNAplfold prediction. for the structure string every
+        # probability > 0.5 is considered paired ("P"), "U" == unpaired
+        call("echo {} | RNAplfold -o".format(seq), shell=True)
+        struct = len(seq) * ["U"]
+        with open("plfold_basepairs", "rt") as handle:
+            for line in handle:
+                line = line.split()
+                if float(line[2]) > 0.5:
+                    struct[int(line[0])-1] = "P"
+                    struct[int(line[1])-1] = "P"
+        struct = ''.join(struct)
+        handle_out.write(">{}\n{}\n{}\n".format(header, seq, struct))
+    handle_in.close()
+    handle_out.close()
+    os.remove("plfold_basepairs")
+
+
+
 def auROC(labels, predictions):
     from sklearn.metrics import auc, roc_curve
     fpr, tpr, _ = roc_curve(labels, predictions)
