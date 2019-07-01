@@ -93,10 +93,25 @@ class Model:
         """ Initialize the model with the given parameters.
 
         Example: providing the params dict {'conv_num': 1, 'kernel_num': 20, 'dropout_input': 0.0}
-        will set these 3 parameters to the provided values. All other parameters will 
-        have default values. A data object must be provided to infer the input shape and
-        number of classes.
+        will set these 3 parameters to the provided values. **All other parameters will 
+        have default values (see above)**. A data object must be provided to infer the input 
+        shape and number of classes.
 
+        By default, multiple layers of the same type will share dependent parameters: 
+        {"dense_num": 3, "neuron_num": 100} creates a model with 100 neurons in each of the three
+        dense layers.
+        
+        To specify parameters for individual layers tuples must be provided:
+        {"dense_num": 3, "neuron_num": (300, 100, 30)} creates a model in which the first layer
+        has 300 neurons, the second 100 and the third 30.
+
+        Another example: the following model has two convolutional layers (the first layer
+        has 10 kernels of length 30, the second layer 20 kernels of length 3) and two dense
+        layers (first dense layer has 100 neurons, the second 10).
+        
+        '{"conv_num": 2, "kernel_num": (10, 20), "kernel_len": (30, 3),
+        '"dense_num": 2, "neuron_num": (100, 10)}
+        
         Parameters
         ----------
         params : dict

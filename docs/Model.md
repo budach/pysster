@@ -64,7 +64,17 @@ def __init__(self, params, data, seed = None)
 ```
 Initialize the model with the given parameters. 
 
- Example: providing the params dict {'conv\_num': 1, 'kernel\_num': 20, 'dropout\_input': 0.0} will set these 3 parameters to the provided values. All other parameters will have default values. A data object must be provided to infer the input shape and number of classes. 
+ Example: providing the params dict {'conv\_num': 1, 'kernel\_num': 20, 'dropout\_input': 0.0} will set these 3 parameters to the provided values. **All other parameters will have default values (see above)**. A data object must be provided to infer the input shape and number of classes. 
+
+ By default, multiple layers of the same type will share dependent parameters: {"dense\_num": 3, "neuron\_num": 100} creates a model with 100 neurons in each of the three dense layers. 
+
+ To specify parameters for individual layers tuples must be provided: {"dense\_num": 3, "neuron\_num": (300, 100, 30)} creates a model in which the first layer has 300 neurons, the second 100 and the third 30. 
+
+ Another example: the following model has two convolutional layers (the first layer has 10 kernels of length 30, the second layer 20 kernels of length 3) and two dense layers (first dense layer has 100 neurons, the second 10). 
+
+  {"conv\_num": 2, "kernel\_num": (10, 20), "kernel\_len": (30, 3),  
+  "dense\_num": 2, "neuron\_num": (100, 10)}  
+ 
 
 
 
