@@ -38,7 +38,7 @@ pip3 uninstall tensorflow
 pip3 install tensorflow-gpu
 ```
 
-At the time of writing the most recent TensorFlow version is 1.12 and the pre-built binary requires CUDA 9 and cuDNN 7.2. You can always check the required versions in the TensorFlow [release notes](https://github.com/tensorflow/tensorflow/releases).
+At the time of writing the most recent TensorFlow version is 1.14 and the pre-built binary requires CUDA 10 and cuDNN 7.4. You can always check the required versions in the TensorFlow [GPU support notes](https://www.tensorflow.org/install/gpu).
 
 
 ### Documentation
