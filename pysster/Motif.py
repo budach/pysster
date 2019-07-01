@@ -32,7 +32,7 @@ class Motif:
         pwm : numpy.ndarray
             A matrix of shape (sequence length, alphabet length) containing probabilities.
         """
-        self.alphabet = alphabet
+        self.alphabet = ''.join(sorted(alphabet))
         if sequences != None:
             self._compute_counts(sequences)
         else:
