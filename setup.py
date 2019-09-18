@@ -13,7 +13,7 @@ setup(
         'matplotlib',
         'seaborn',
         'scikit-learn',
-        'keras>=2.1.3',
+        'keras<=2.3.0',
         'tensorflow!=1.8',
         'h5py',
         'logging_exceptions',
