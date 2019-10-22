@@ -59,6 +59,9 @@ At the time of writing the most recent TensorFlow version is 1.14 and the pre-bu
 
 ### Changelog
 
+**v1.2.2 - 22. October 2019 (PyPI)**
+* fix Tensorflow version to < 2.0 for now
+
 **v1.2.1 - 28. February 2019 (PyPI)**
 * small fix to be compatible with the forgi 2.0 dependency
 
