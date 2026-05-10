@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2022
+    strategy:
+      matrix:
+        PYTHON:
+          - 'C:\Python35-x64'
+          - 'C:\Python36-x64'
+          - 'C:\Python37-x64'
+    env:
+      PYTHON: ${{ matrix.PYTHON }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install
+        shell: cmd
+        run: '%PYTHON%\Scripts\pip.exe install .'
+      - name: Test
+        shell: cmd
+        run: '%PYTHON%\python.exe -m unittest -v'
